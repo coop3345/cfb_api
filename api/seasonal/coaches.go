@@ -1,0 +1,93 @@
+package seasonal
+
+import (
+	"cfbapi/api"
+	"cfbapi/util"
+	"encoding/json"
+	"strconv"
+)
+
+type Coaches []Coach
+type Coach struct {
+	FirstName      string  `json:"firstName"`
+	LastName       string  `json:"lastName"`
+	HireDate       string  `json:"hireDate"`
+	School         string  `json:"-"`
+	Year           int     `json:"-"`
+	Games          int     `json:"-"`
+	Wins           int     `json:"-"`
+	Losses         int     `json:"-"`
+	Ties           int     `json:"-"`
+	PreseasonRank  int     `json:"-"`
+	PostseasonRank int     `json:"-"`
+	Srs            float64 `json:"-"`
+	SpOverall      float64 `json:"-"`
+	SpOffense      float64 `json:"-"`
+	SpDefense      float64 `json:"-"`
+}
+
+func (c *Coaches) UnmarshalJSON(data []byte) error {
+	var raw []struct {
+		FirstName string `json:"firstName"`
+		LastName  string `json:"lastName"`
+		HireDate  string `json:"hireDate"`
+		Seasons   []struct {
+			School         string  `json:"school"`
+			Year           int     `json:"year"`
+			Games          int     `json:"games"`
+			Wins           int     `json:"wins"`
+			Losses         int     `json:"losses"`
+			Ties           int     `json:"ties"`
+			PreseasonRank  int     `json:"preseasonRank"`
+			PostseasonRank int     `json:"postseasonRank"`
+			Srs            float64 `json:"srs"`
+			SpOverall      float64 `json:"spOverall"`
+			SpOffense      float64 `json:"spOffense"`
+			SpDefense      float64 `json:"spDefense"`
+		} `json:"seasons"`
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	var flattened Coaches
+	for _, coach := range raw {
+		for _, season := range coach.Seasons {
+			flattened = append(flattened, Coach{
+				FirstName:      coach.FirstName,
+				LastName:       coach.LastName,
+				HireDate:       coach.HireDate,
+				School:         season.School,
+				Year:           season.Year,
+				Games:          season.Games,
+				Wins:           season.Wins,
+				Losses:         season.Losses,
+				Ties:           season.Ties,
+				PreseasonRank:  season.PreseasonRank,
+				PostseasonRank: season.PostseasonRank,
+				Srs:            season.Srs,
+				SpOverall:      season.SpOverall,
+				SpOffense:      season.SpOffense,
+				SpDefense:      season.SpDefense,
+			})
+		}
+	}
+
+	*c = flattened
+	return nil
+}
+
+func GetCoaches() {
+	b, _ := api.APICall("coaches?year=" + strconv.Itoa(util.SEASON))
+	var coaches Coaches
+	if err := json.Unmarshal(b, &coaches); err != nil {
+		panic(err)
+	}
+
+	InsertCoaches()
+}
+
+func InsertCoaches() {
+	print(1)
+}
