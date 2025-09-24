@@ -1,4 +1,4 @@
-package api
+package models
 
 type Venues []Venue
 type Venue struct {

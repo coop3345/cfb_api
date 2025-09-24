@@ -2,7 +2,7 @@ package weekly
 
 type Games []Game
 type Game struct {
-	Id                         int     `json:"id"`
+	Id                         int     `json:"id" gorm:"primaryKey"`
 	Season                     int     `json:"season"`
 	Week                       int     `json:"week"`
 	SeasonType                 string  `json:"seasonType"`

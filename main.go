@@ -1,12 +1,16 @@
 package main
 
 import (
-	"cfbapi/api/seasonal"
+	"cfbapi/conn"
+	"cfbapi/models/seasonal"
 	"cfbapi/util"
+	"fmt"
 	"time"
 )
 
 func main() {
+	util.DB, _ = conn.InitDB()
+
 	if util.GET_SEASON {
 		for y := util.START_SEASON; y <= util.END_SEASON; y++ {
 			get_season(y)
@@ -32,7 +36,7 @@ func get_season(year int) {
 	for _, week := range cal {
 		util.WEEK = week.Week
 		if week.EndDate.Unix() > time.Now().Unix() {
-			print("Week (%s) not yet completed in Season - %s", week, year)
+			fmt.Printf("Week (%v) not yet completed in Season - %v", week, year)
 			break
 		}
 		get_week(util.SEASON, util.WEEK)

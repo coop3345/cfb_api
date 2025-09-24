@@ -1,7 +1,7 @@
 package seasonal
 
 import (
-	"cfbapi/api"
+	"cfbapi/conn"
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
@@ -11,9 +11,9 @@ import (
 
 type Calendar []Week
 type Week struct {
-	Season     int       `json:"season"`
-	Week       int       `json:"week"`
-	SeasonType string    `json:"seasonType"`
+	Season     int       `json:"season" gorm:"primaryKey"`
+	Week       int       `json:"week" gorm:"primaryKey"`
+	SeasonType string    `json:"seasonType" gorm:"primaryKey;size:50"`
 	StartDate  time.Time `json:"startDate"`
 	EndDate    time.Time `json:"endDate"`
 }
@@ -47,7 +47,7 @@ func (w *Week) UnmarshalJSON(data []byte) error {
 }
 
 func GetCalendar() Calendar {
-	b, _ := api.APICall(fmt.Sprintf("calendar?year=%s", strconv.Itoa(util.SEASON)))
+	b, _ := conn.APICall(fmt.Sprintf("calendar?year=%v", strconv.Itoa(util.SEASON)))
 	var cal Calendar
 	if err := json.Unmarshal(b, &cal); err != nil {
 		panic(err)

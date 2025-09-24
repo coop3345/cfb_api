@@ -1,4 +1,4 @@
-package api
+package conn
 
 import (
 	"cfbapi/util"

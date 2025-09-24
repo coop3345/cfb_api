@@ -1,7 +1,7 @@
 package seasonal
 
 import (
-	"cfbapi/api"
+	"cfbapi/conn"
 	"cfbapi/util"
 	"encoding/json"
 	"strconv"
@@ -9,21 +9,21 @@ import (
 
 type Coaches []Coach
 type Coach struct {
-	FirstName      string  `json:"firstName"`
-	LastName       string  `json:"lastName"`
+	FirstName      string  `json:"firstName" gorm:"primaryKey;size:40"`
+	LastName       string  `json:"lastName" gorm:"primaryKey;size:40"`
 	HireDate       string  `json:"hireDate"`
-	School         string  `json:"-"`
-	Year           int     `json:"-"`
-	Games          int     `json:"-"`
-	Wins           int     `json:"-"`
-	Losses         int     `json:"-"`
-	Ties           int     `json:"-"`
-	PreseasonRank  int     `json:"-"`
-	PostseasonRank int     `json:"-"`
-	Srs            float64 `json:"-"`
-	SpOverall      float64 `json:"-"`
-	SpOffense      float64 `json:"-"`
-	SpDefense      float64 `json:"-"`
+	School         string  `json:"school" gorm:"primaryKey;size:100"`
+	Year           int     `json:"year" gorm:"primaryKey"`
+	Games          int     `json:"games"`
+	Wins           int     `json:"wins"`
+	Losses         int     `json:"losses"`
+	Ties           int     `json:"ties"`
+	PreseasonRank  int     `json:"preseasonRank"`
+	PostseasonRank int     `json:"postseasonRank"`
+	Srs            float64 `json:"srs"`
+	SpOverall      float64 `json:"spOverall"`
+	SpOffense      float64 `json:"spOffense"`
+	SpDefense      float64 `json:"spDefense"`
 }
 
 func (c *Coaches) UnmarshalJSON(data []byte) error {
@@ -79,15 +79,9 @@ func (c *Coaches) UnmarshalJSON(data []byte) error {
 }
 
 func GetCoaches() {
-	b, _ := api.APICall("coaches?year=" + strconv.Itoa(util.SEASON))
+	b, _ := conn.APICall("coaches?year=" + strconv.Itoa(util.SEASON))
 	var coaches Coaches
 	if err := json.Unmarshal(b, &coaches); err != nil {
 		panic(err)
 	}
-
-	InsertCoaches()
-}
-
-func InsertCoaches() {
-	print(1)
 }

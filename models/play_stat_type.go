@@ -1,4 +1,4 @@
-package api
+package models
 
 type PlayStatTypes []PlayStatType
 type PlayStatType struct {
