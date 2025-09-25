@@ -1,8 +1,11 @@
 package models
 
 import (
-	"database/sql"
+	"cfbapi/conn"
+	"cfbapi/util"
+	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type RecruitingTeams []RecruitingTeam
@@ -36,29 +39,59 @@ type Recruit struct {
 // recruiting/players?year=
 // recruiting/teams?year=
 
-func InsertRecruits(db *sql.DB, recruits []Recruit) error {
-	query := `
-	INSERT INTO recruits (
-		id, athleteId, recruitType, year, ranking, name,
-		school, committedTo, position, height, weight,
-		stars, rating, city, stateProvince, country
-	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+// func InsertRecruits(db *sql.DB, recruits []Recruit) error {
+// 	query := `
+// 	INSERT INTO recruits (
+// 		id, athleteId, recruitType, year, ranking, name,
+// 		school, committedTo, position, height, weight,
+// 		stars, rating, city, stateProvince, country
+// 	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
-	stmt, err := db.Prepare(query)
-	if err != nil {
-		return fmt.Errorf("prepare failed: %w", err)
+// 	stmt, err := db.Prepare(query)
+// 	if err != nil {
+// 		return fmt.Errorf("prepare failed: %w", err)
+// 	}
+// 	defer stmt.Close()
+
+// 	for _, r := range recruits {
+// 		_, err := stmt.Exec(
+// 			r.ID, r.AthleteID, r.RecruitType, r.Year, r.Ranking, r.Name,
+// 			r.School, r.CommittedTo, r.Position, r.Height, r.Weight,
+// 			r.Stars, r.Rating, r.City, r.StateProvince, r.Country,
+// 		)
+// 		if err != nil {
+// 			return fmt.Errorf("insert failed for recruit %s: %w", r.ID, err)
+// 		}
+// 	}
+
+// 	return nil
+// }
+
+func FetchAndInsertRecruits() error {
+	var r Recruits
+	query := fmt.Sprintf("recruiting/players?year=%v", strconv.Itoa(util.SEASON))
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &r); err != nil {
+		panic(err)
 	}
-	defer stmt.Close()
+	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
+		return err
+	}
 
-	for _, r := range recruits {
-		_, err := stmt.Exec(
-			r.ID, r.AthleteID, r.RecruitType, r.Year, r.Ranking, r.Name,
-			r.School, r.CommittedTo, r.Position, r.Height, r.Weight,
-			r.Stars, r.Rating, r.City, r.StateProvince, r.Country,
-		)
-		if err != nil {
-			return fmt.Errorf("insert failed for recruit %s: %w", r.ID, err)
-		}
+	return nil
+}
+
+func FetchAndInsertRecruitingTeams() error {
+	var t RecruitingTeams
+	query := fmt.Sprintf("recruiting/teams?year=%v", strconv.Itoa(util.SEASON))
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &t); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(t, 100).Error; err != nil {
+		return err
 	}
 
 	return nil

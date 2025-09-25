@@ -1,8 +1,11 @@
 package weekly
 
 import (
+	"cfbapi/conn"
+	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type Plays []Play
@@ -60,6 +63,7 @@ func (p *Play) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+type PlayStats []PlayStat
 type PlayStat struct {
 	GameId        int    `json:"gameId"`
 	Season        int    `json:"season"`
@@ -102,6 +106,38 @@ func (ps *PlayStat) UnmarshalJSON(data []byte) error {
 
 	ps.ClockMinutes = aux.Clock.Minutes
 	ps.ClockSeconds = aux.Clock.Seconds
+
+	return nil
+}
+
+func FetchAndInsertPlays() error {
+	var plays Plays
+	query := fmt.Sprintf("plays?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	// Season + Week Req
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &plays); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(plays, 100).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FetchAndInsertPlayStats(gameID int) error {
+	var playStats PlayStats
+	query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameID))
+	// 2000 result limit // Is it paginated?
+	// looks like it needs GameID // Maybe conference?
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &playStats); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(playStats, 100).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

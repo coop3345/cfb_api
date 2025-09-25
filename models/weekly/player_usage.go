@@ -1,6 +1,12 @@
 package weekly
 
-import "encoding/json"
+import (
+	"cfbapi/conn"
+	"cfbapi/util"
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
 
 type PlayerUsage struct {
 	Season        int    `json:"season"`
@@ -60,6 +66,22 @@ func (p *PlayerUsage) UnmarshalJSON(data []byte) error {
 	p.Rush = aux.Usage.Rush
 	p.Pass = aux.Usage.Pass
 	p.Overall = aux.Usage.Overall
+
+	return nil
+}
+
+func FetchAndInsertPlayerUsage() error {
+	var pu []PlayerUsage
+	query := fmt.Sprintf("player/usage?year=%v", strconv.Itoa(util.SEASON))
+	// Season + Week Req
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &pu); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(pu, 100).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

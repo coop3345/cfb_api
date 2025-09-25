@@ -1,6 +1,12 @@
 package weekly
 
-import "encoding/json"
+import (
+	"cfbapi/conn"
+	"cfbapi/util"
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
 
 type Rankings []RankingFlat
 
@@ -64,5 +70,21 @@ func (r *Rankings) UnmarshalJSON(data []byte) error {
 	}
 
 	*r = flatEntries
+	return nil
+}
+
+func FetchAndInsertRankings() error {
+	var r Rankings
+	query := fmt.Sprintf("rankings?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query = util.Trim_endpoint(query)
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &r); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
+		return err
+	}
+
 	return nil
 }

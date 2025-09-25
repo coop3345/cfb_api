@@ -46,17 +46,18 @@ func (w *Week) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func GetCalendar() Calendar {
-	b, _ := conn.APICall(fmt.Sprintf("calendar?year=%v", strconv.Itoa(util.SEASON)))
+func FetchAndInsertCalendar() (Calendar, error) {
 	var cal Calendar
+	query := fmt.Sprintf("calendar?year=%v", strconv.Itoa(util.SEASON))
+
+	b, _ := conn.APICall(query)
 	if err := json.Unmarshal(b, &cal); err != nil {
 		panic(err)
 	}
 
-	InsertCalendar(cal)
-	return cal
-}
+	if err := util.DB.CreateInBatches(cal, 100).Error; err != nil {
+		return nil, err
+	}
 
-func InsertCalendar(c Calendar) {
-
+	return cal, nil
 }

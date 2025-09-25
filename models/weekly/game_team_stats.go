@@ -1,8 +1,11 @@
 package weekly
 
 import (
+	"cfbapi/conn"
+	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 var GameEndpoint = "/games/teams"
@@ -61,5 +64,21 @@ func (gts *GameTeamStats) UnmarshalJSON(data []byte) error {
 
 	// Assign flattened results
 	*gts = flat
+	return nil
+}
+
+func FetchAndInsertGameTeamStats() error {
+	var gts GameTeamStats
+	query := fmt.Sprintf("games/teams?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query = util.Trim_endpoint(query)
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &gts); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(gts, 100).Error; err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"cfbapi/conn"
 	"cfbapi/util"
 	"encoding/json"
+	"fmt"
 	"strconv"
 )
 
@@ -78,10 +79,18 @@ func (c *Coaches) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func GetCoaches() {
-	b, _ := conn.APICall("coaches?year=" + strconv.Itoa(util.SEASON))
+func FetchAndInsertCoaches() error {
 	var coaches Coaches
+	query := fmt.Sprintf("coaches?year=%v", strconv.Itoa(util.SEASON))
+
+	b, _ := conn.APICall(query)
 	if err := json.Unmarshal(b, &coaches); err != nil {
 		panic(err)
 	}
+
+	if err := util.DB.CreateInBatches(coaches, 100).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,8 +1,11 @@
 package seasonal
 
 import (
+	"cfbapi/conn"
+	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"gorm.io/datatypes"
 )
@@ -100,6 +103,21 @@ func (t *Team) UnmarshalJSON(data []byte) error {
 	t.ConstructionYear = aux.Location.ConstructionYear
 	t.Grass = aux.Location.Grass
 	t.Dome = aux.Location.Dome
+
+	return nil
+}
+
+func FetchAndInsertTeams() error {
+	var teams Teams
+	query := fmt.Sprintf("teams?year=%v", strconv.Itoa(util.SEASON))
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &teams); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(teams, 100).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

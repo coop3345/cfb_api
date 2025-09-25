@@ -1,6 +1,12 @@
 package weekly
 
-import "encoding/json"
+import (
+	"cfbapi/conn"
+	"cfbapi/util"
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
 
 type SPRatings []SPRating
 type SP struct {
@@ -203,4 +209,58 @@ func (r *FPIRatings) UnmarshalJSON(data []byte) error {
 	}
 	*r = flat
 	return nil
+}
+
+func FetchAndInsertSP() error {
+	var r SPRatings
+	query := fmt.Sprintf("ratings/sp?year=%v", strconv.Itoa(util.SEASON))
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &r); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FetchAndInsertSRS() error {
+	var r SRSRatings
+	query := fmt.Sprintf("ratings/srs?year=%v", strconv.Itoa(util.SEASON))
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &r); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FetchAndInsertFPI() error {
+	var r FPIRatings
+	query := fmt.Sprintf("ratings/fpi?year=%v", strconv.Itoa(util.SEASON))
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &r); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FetchAndInsertRatings() []error {
+	var errs []error
+	errs = append(errs, FetchAndInsertSP())
+	errs = append(errs, FetchAndInsertSRS())
+	errs = append(errs, FetchAndInsertFPI())
+
+	return errs
 }

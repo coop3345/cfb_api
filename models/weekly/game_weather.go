@@ -1,5 +1,13 @@
 package weekly
 
+import (
+	"cfbapi/conn"
+	"cfbapi/util"
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
+
 type GameWeather struct {
 	GameID               int     `json:"id" gorm:"primaryKey"`
 	Season               int     `json:"season"`
@@ -23,4 +31,20 @@ type GameWeather struct {
 	Pressure             float64 `json:"pressure"`
 	WeatherConditionCode int     `json:"weatherConditionCode"`
 	WeatherCondition     string  `json:"weatherCondition"`
+}
+
+func FetchAndInsertGameWeather() error {
+	var gameWeather []GameWeather
+	query := fmt.Sprintf("games/weather?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query = util.Trim_endpoint(query)
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &gameWeather); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(gameWeather, 100).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

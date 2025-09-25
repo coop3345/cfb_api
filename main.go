@@ -27,8 +27,8 @@ func main() {
 }
 
 func get_season(year int) {
-	cal := seasonal.GetCalendar()
-	seasonal.GetCoaches()
+	cal, _ := seasonal.FetchAndInsertCalendar()
+	seasonal.FetchAndInsertCoaches()
 
 	if !util.GET_WEEKLY {
 		return

@@ -1,8 +1,11 @@
 package weekly
 
 import (
+	"cfbapi/conn"
+	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type Drives []Drive
@@ -65,6 +68,22 @@ func (d *Drive) UnmarshalJSON(data []byte) error {
 	d.EndSeconds = aux.EndTime.Seconds
 	d.ElapsedMinutes = aux.Elapsed.Minutes
 	d.ElapsedSeconds = aux.Elapsed.Seconds
+
+	return nil
+}
+
+func FetchAndInsertDrives() error {
+	var drives Drives
+	query := fmt.Sprintf("drives?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query = util.Trim_endpoint(query)
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &drives); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(drives, 100).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

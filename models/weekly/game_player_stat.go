@@ -1,8 +1,11 @@
 package weekly
 
 import (
+	"cfbapi/conn"
+	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 // todo flatten
@@ -74,5 +77,21 @@ func (gps *GamePlayerStats) UnmarshalJSON(data []byte) error {
 
 	// Assign flattened result
 	*gps = flat
+	return nil
+}
+
+func FetchAndInsertGamePlayerStats() error {
+	var gps GamePlayerStats
+	query := fmt.Sprintf("games/players?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query = util.Trim_endpoint(query)
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &gps); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(gps, 100).Error; err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -1,7 +1,6 @@
 package conn
 
 import (
-	"cfbapi/models"
 	"cfbapi/util"
 	"log"
 
@@ -17,7 +16,12 @@ func InitDB() (*gorm.DB, error) {
 		log.Fatalf("DB connection failed: %v", err)
 	}
 
-	DB.AutoMigrate(&models.Recruit{})
-
 	return DB, err
+}
+
+func BatchInsert[T any](db *gorm.DB, data []T, batchSize int) error {
+	if len(data) == 0 {
+		return nil
+	}
+	return db.CreateInBatches(data, batchSize).Error
 }

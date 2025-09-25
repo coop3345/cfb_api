@@ -1,6 +1,12 @@
 package weekly
 
-import "encoding/json"
+import (
+	"cfbapi/conn"
+	"cfbapi/util"
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
 
 type StatsGameAdv []StatsGameAdvFlat
 type StatsGameAdvFlat struct {
@@ -260,6 +266,22 @@ func (f *StatsGameAdvFlat) UnmarshalJSON(data []byte) error {
 	f.DefensePpa = raw.Defense.Ppa
 	f.DefenseDrives = raw.Defense.Drives
 	f.DefensePlays = raw.Defense.Plays
+
+	return nil
+}
+
+func FetchAndInsertGameStatsAdv() error {
+	var sga StatsGameAdv
+	query := fmt.Sprintf("stats/game?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query = util.Trim_endpoint(query)
+
+	b, _ := conn.APICall(query)
+	if err := json.Unmarshal(b, &sga); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(sga, 100).Error; err != nil {
+		return err
+	}
 
 	return nil
 }

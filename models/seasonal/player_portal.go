@@ -21,16 +21,17 @@ type PlayerPortalEntry struct {
 	Eligibility  string  `json:"eligibility"`
 }
 
-func GetPortal() {
-	b, _ := conn.APICall("player/portal?year=" + strconv.Itoa(util.SEASON))
+func FetchAndInsertPortal() error {
 	var portal PortalSeason
+	query := "player/portal?year=" + strconv.Itoa(util.SEASON)
+
+	b, _ := conn.APICall(query)
 	if err := json.Unmarshal(b, &portal); err != nil {
 		panic(err)
 	}
+	if err := util.DB.CreateInBatches(portal, 100).Error; err != nil {
+		return err
+	}
 
-	InsertPortal()
-}
-
-func InsertPortal() {
-
+	return nil
 }

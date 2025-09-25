@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"gorm.io/datatypes"
-	"gorm.io/gorm"
 )
 
 type Rosters []Roster
@@ -31,7 +30,7 @@ type Roster struct {
 	RecruitIds     datatypes.JSON `json:"recruitIds"`
 }
 
-func FetchAndInsertRosters(db *gorm.DB) error {
+func FetchAndInsertRosters() error {
 	var rosters Rosters
 	query := fmt.Sprintf("roster?year=%v", strconv.Itoa(util.SEASON))
 	b, _ := conn.APICall(query)
@@ -39,13 +38,11 @@ func FetchAndInsertRosters(db *gorm.DB) error {
 		return err
 	}
 
-	// Inject the season (from query context) into each item
 	for i := range rosters {
 		rosters[i].Season = util.SEASON
 	}
 
-	// Batch insert
-	if err := db.CreateInBatches(rosters, 100).Error; err != nil {
+	if err := util.DB.CreateInBatches(rosters, 100).Error; err != nil {
 		return err
 	}
 

@@ -1,5 +1,11 @@
 package models
 
+import (
+	"cfbapi/conn"
+	"cfbapi/util"
+	"encoding/json"
+)
+
 type Venues []Venue
 type Venue struct {
 	Id               int     `json:"id"`
@@ -16,4 +22,18 @@ type Venue struct {
 	ConstructionYear int     `json:"constructionYear"`
 	Grass            bool    `json:"grass"`
 	Dome             bool    `json:"dome"`
+}
+
+func FetchAndInsertVenues() error {
+	var v Venues
+
+	b, _ := conn.APICall("venues")
+	if err := json.Unmarshal(b, &v); err != nil {
+		panic(err)
+	}
+	if err := util.DB.CreateInBatches(v, 100).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
