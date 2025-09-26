@@ -3,7 +3,6 @@ package models
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
-	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -67,14 +66,10 @@ type Recruit struct {
 // 	return nil
 // }
 
-func FetchAndInsertRecruits() error {
+func FetchAndInsertRecruits(year int) error {
 	var r Recruits
-	query := fmt.Sprintf("recruiting/players?year=%v", strconv.Itoa(util.SEASON))
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &r); err != nil {
-		panic(err)
-	}
+	query := fmt.Sprintf("recruiting/players?year=%v", strconv.Itoa(year))
+	conn.APICall(query, &r)
 	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
 		return err
 	}
@@ -82,14 +77,10 @@ func FetchAndInsertRecruits() error {
 	return nil
 }
 
-func FetchAndInsertRecruitingTeams() error {
+func FetchAndInsertRecruitingTeams(year int) error {
 	var t RecruitingTeams
-	query := fmt.Sprintf("recruiting/teams?year=%v", strconv.Itoa(util.SEASON))
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &t); err != nil {
-		panic(err)
-	}
+	query := fmt.Sprintf("recruiting/teams?year=%v", strconv.Itoa(year))
+	conn.APICall(query, &t)
 	if err := util.DB.CreateInBatches(t, 100).Error; err != nil {
 		return err
 	}

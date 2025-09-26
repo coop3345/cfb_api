@@ -3,7 +3,6 @@ package seasonal
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
-	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -18,11 +17,7 @@ type Talent struct {
 func FetchAndInsertTalent() error {
 	var talent TeamTalent
 	query := fmt.Sprintf("talent?year=%v", strconv.Itoa(util.SEASON))
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &talent); err != nil {
-		panic(err)
-	}
+	conn.APICall(query, &talent)
 	if err := util.DB.CreateInBatches(talent, 100).Error; err != nil {
 		return err
 	}

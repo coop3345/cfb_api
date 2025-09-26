@@ -82,11 +82,7 @@ func (c *Coaches) UnmarshalJSON(data []byte) error {
 func FetchAndInsertCoaches() error {
 	var coaches Coaches
 	query := fmt.Sprintf("coaches?year=%v", strconv.Itoa(util.SEASON))
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &coaches); err != nil {
-		panic(err)
-	}
+	conn.APICall(query, &coaches)
 
 	if err := util.DB.CreateInBatches(coaches, 100).Error; err != nil {
 		return err

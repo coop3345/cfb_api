@@ -51,6 +51,7 @@ type SP struct {
 
 type SPRating struct {
 	Year            int
+	Week            int
 	Team            string
 	Conference      string
 	Rating          float64
@@ -89,7 +90,8 @@ type SPRating struct {
 
 type SRSRatings []SRS
 type SRS struct {
-	Year       int     `json:"year"`
+	Year       int `json:"year"`
+	Week       int
 	Team       string  `json:"team"`
 	Conference string  `json:"conference"`
 	Division   string  `json:"division"`
@@ -121,6 +123,7 @@ type FPI struct {
 
 type FPIRating struct {
 	Year                        int
+	Week                        int
 	Team                        string
 	Conference                  string
 	Fpi                         float64
@@ -214,11 +217,12 @@ func (r *FPIRatings) UnmarshalJSON(data []byte) error {
 func FetchAndInsertSP() error {
 	var r SPRatings
 	query := fmt.Sprintf("ratings/sp?year=%v", strconv.Itoa(util.SEASON))
+	conn.APICall(query, &r)
 
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &r); err != nil {
-		panic(err)
+	for i := range r {
+		r[i].Week = util.WEEK
 	}
+
 	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
 		return err
 	}
@@ -229,11 +233,12 @@ func FetchAndInsertSP() error {
 func FetchAndInsertSRS() error {
 	var r SRSRatings
 	query := fmt.Sprintf("ratings/srs?year=%v", strconv.Itoa(util.SEASON))
+	conn.APICall(query, &r)
 
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &r); err != nil {
-		panic(err)
+	for i := range r {
+		r[i].Week = util.WEEK
 	}
+
 	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
 		return err
 	}
@@ -244,11 +249,12 @@ func FetchAndInsertSRS() error {
 func FetchAndInsertFPI() error {
 	var r FPIRatings
 	query := fmt.Sprintf("ratings/fpi?year=%v", strconv.Itoa(util.SEASON))
+	conn.APICall(query, &r)
 
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &r); err != nil {
-		panic(err)
+	for i := range r {
+		r[i].Week = util.WEEK
 	}
+
 	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
 		return err
 	}

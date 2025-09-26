@@ -3,7 +3,6 @@ package models
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
-	"encoding/json"
 )
 
 type Venues []Venue
@@ -26,11 +25,7 @@ type Venue struct {
 
 func FetchAndInsertVenues() error {
 	var v Venues
-
-	b, _ := conn.APICall("venues")
-	if err := json.Unmarshal(b, &v); err != nil {
-		panic(err)
-	}
+	conn.APICall("venues", &v)
 	if err := util.DB.CreateInBatches(v, 100).Error; err != nil {
 		return err
 	}

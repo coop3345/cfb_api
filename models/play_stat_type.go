@@ -3,7 +3,6 @@ package models
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
-	"encoding/json"
 )
 
 type PlayStatTypes []PlayStatType
@@ -14,11 +13,7 @@ type PlayStatType struct {
 
 func FetchAndInsertPlayStatTypes() error {
 	var pst PlayStatTypes
-
-	b, _ := conn.APICall("plays/stats/types")
-	if err := json.Unmarshal(b, &pst); err != nil {
-		panic(err)
-	}
+	conn.APICall("plays/stats/types", &pst)
 	if err := util.DB.CreateInBatches(pst, 100).Error; err != nil {
 		return err
 	}

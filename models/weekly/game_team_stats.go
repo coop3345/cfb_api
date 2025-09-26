@@ -71,11 +71,7 @@ func FetchAndInsertGameTeamStats() error {
 	var gts GameTeamStats
 	query := fmt.Sprintf("games/teams?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
 	query = util.Trim_endpoint(query)
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &gts); err != nil {
-		panic(err)
-	}
+	conn.APICall(query, &gts)
 	if err := util.DB.CreateInBatches(gts, 100).Error; err != nil {
 		return err
 	}

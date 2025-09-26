@@ -3,7 +3,6 @@ package models
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
-	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -30,14 +29,10 @@ type DraftPick struct {
 	PreDraftGrade           float64 `json:"preDraftGrade"`
 }
 
-func FetchAndInsertDraftPicks() error {
+func FetchAndInsertDraftPicks(year int) error {
 	var dp DraftPicks
-	query := fmt.Sprintf("draft/picks?year=%v", strconv.Itoa(util.SEASON))
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &dp); err != nil {
-		panic(err)
-	}
+	query := fmt.Sprintf("draft/picks?year=%v", strconv.Itoa(year))
+	conn.APICall(query, &dp)
 	if err := util.DB.CreateInBatches(dp, 100).Error; err != nil {
 		return err
 	}

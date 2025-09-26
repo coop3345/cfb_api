@@ -1,4 +1,4 @@
-package weekly
+package seasonal
 
 import (
 	"cfbapi/conn"
@@ -74,11 +74,8 @@ func FetchAndInsertPlayerUsage() error {
 	var pu []PlayerUsage
 	query := fmt.Sprintf("player/usage?year=%v", strconv.Itoa(util.SEASON))
 	// Season + Week Req
+	conn.APICall(query, &pu)
 
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &pu); err != nil {
-		panic(err)
-	}
 	if err := util.DB.CreateInBatches(pu, 100).Error; err != nil {
 		return err
 	}

@@ -3,7 +3,6 @@ package seasonal
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
-	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -33,11 +32,7 @@ type Roster struct {
 func FetchAndInsertRosters() error {
 	var rosters Rosters
 	query := fmt.Sprintf("roster?year=%v", strconv.Itoa(util.SEASON))
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &rosters); err != nil {
-		return err
-	}
-
+	conn.APICall(query, &rosters)
 	for i := range rosters {
 		rosters[i].Season = util.SEASON
 	}

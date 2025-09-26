@@ -2,6 +2,7 @@ package weekly
 
 import (
 	"cfbapi/conn"
+	"cfbapi/models/seasonal"
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
@@ -114,11 +115,7 @@ func FetchAndInsertPlays() error {
 	var plays Plays
 	query := fmt.Sprintf("plays?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
 	// Season + Week Req
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &plays); err != nil {
-		panic(err)
-	}
+	conn.APICall(query, &plays)
 	if err := util.DB.CreateInBatches(plays, 100).Error; err != nil {
 		return err
 	}
@@ -126,17 +123,29 @@ func FetchAndInsertPlays() error {
 	return nil
 }
 
-func FetchAndInsertPlayStats(gameID int) error {
+func FetchAndInsertPlayStats(conference string) error {
 	var playStats PlayStats
-	query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameID))
+	query := fmt.Sprintf("plays/stats?year=%v&week=%v&conference=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), conference)
 	// 2000 result limit // Is it paginated?
 	// looks like it needs GameID // Maybe conference?
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &playStats); err != nil {
-		panic(err)
-	}
-	if err := util.DB.CreateInBatches(playStats, 100).Error; err != nil {
-		return err
+	conn.APICall(query, &playStats)
+
+	if len(playStats) == 2000 {
+		print("WARNING! Play Stats cap reached. Season: %v, Week: %v, Conference: %v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), conference)
+		for _, team := range seasonal.CONFERENCE_TEAMS[conference] {
+			gameID := GAMES[team.School]
+			query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameID))
+			conn.APICall(query, &playStats)
+
+			if err := util.DB.CreateInBatches(playStats, 100).Error; err != nil {
+				return err
+			}
+		}
+
+	} else {
+		if err := util.DB.CreateInBatches(playStats, 100).Error; err != nil {
+			return err
+		}
 	}
 
 	return nil

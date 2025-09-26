@@ -3,8 +3,9 @@ package models
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
-	"encoding/json"
 )
+
+var CONFERENCES Conferences
 
 type Conferences []Conference
 type Conference struct {
@@ -16,13 +17,8 @@ type Conference struct {
 }
 
 func FetchAndInsertConferences() error {
-	var con Conferences
-
-	b, _ := conn.APICall("conferences")
-	if err := json.Unmarshal(b, &con); err != nil {
-		panic(err)
-	}
-	if err := util.DB.CreateInBatches(con, 100).Error; err != nil {
+	conn.APICall("conferences", &CONFERENCES)
+	if err := util.DB.CreateInBatches(CONFERENCES, 100).Error; err != nil {
 		return err
 	}
 

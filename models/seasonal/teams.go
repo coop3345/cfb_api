@@ -10,8 +10,10 @@ import (
 	"gorm.io/datatypes"
 )
 
-type Teams []Team
+var TEAMS Teams
+var CONFERENCE_TEAMS map[string]Teams
 
+type Teams []Team
 type Team struct {
 	ID             int            `json:"id" gorm:"primaryKey"`
 	School         string         `json:"school"`
@@ -108,16 +110,22 @@ func (t *Team) UnmarshalJSON(data []byte) error {
 }
 
 func FetchAndInsertTeams() error {
-	var teams Teams
 	query := fmt.Sprintf("teams?year=%v", strconv.Itoa(util.SEASON))
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &teams); err != nil {
-		panic(err)
-	}
-	if err := util.DB.CreateInBatches(teams, 100).Error; err != nil {
+	conn.APICall(query, &TEAMS)
+	if err := util.DB.CreateInBatches(TEAMS, 100).Error; err != nil {
 		return err
 	}
 
+	BuildConferenceTeams()
+
 	return nil
+}
+
+func BuildConferenceTeams() {
+	CONFERENCE_TEAMS = make(map[string]Teams)
+
+	for _, team := range TEAMS {
+		conf := team.Conference
+		CONFERENCE_TEAMS[conf] = append(CONFERENCE_TEAMS[conf], team)
+	}
 }

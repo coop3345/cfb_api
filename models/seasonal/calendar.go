@@ -50,10 +50,7 @@ func FetchAndInsertCalendar() (Calendar, error) {
 	var cal Calendar
 	query := fmt.Sprintf("calendar?year=%v", strconv.Itoa(util.SEASON))
 
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &cal); err != nil {
-		panic(err)
-	}
+	conn.APICall(query, &cal)
 
 	if err := util.DB.CreateInBatches(cal, 100).Error; err != nil {
 		return nil, err

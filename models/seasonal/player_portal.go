@@ -3,7 +3,6 @@ package seasonal
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
-	"encoding/json"
 	"strconv"
 )
 
@@ -24,11 +23,7 @@ type PlayerPortalEntry struct {
 func FetchAndInsertPortal() error {
 	var portal PortalSeason
 	query := "player/portal?year=" + strconv.Itoa(util.SEASON)
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &portal); err != nil {
-		panic(err)
-	}
+	conn.APICall(query, &portal)
 	if err := util.DB.CreateInBatches(portal, 100).Error; err != nil {
 		return err
 	}

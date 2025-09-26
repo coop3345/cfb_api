@@ -3,7 +3,6 @@ package weekly
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
-	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -37,11 +36,7 @@ func FetchAndInsertGameWeather() error {
 	var gameWeather []GameWeather
 	query := fmt.Sprintf("games/weather?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
 	query = util.Trim_endpoint(query)
-
-	b, _ := conn.APICall(query)
-	if err := json.Unmarshal(b, &gameWeather); err != nil {
-		panic(err)
-	}
+	conn.APICall(query, &gameWeather)
 	if err := util.DB.CreateInBatches(gameWeather, 100).Error; err != nil {
 		return err
 	}
