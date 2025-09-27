@@ -20,6 +20,10 @@ type PlayerPortalEntry struct {
 	Eligibility  string  `json:"eligibility"`
 }
 
+func (PlayerPortalEntry) TableName() string {
+	return "Portal"
+}
+
 func FetchAndInsertPortal() error {
 	var portal PortalSeason
 	query := "player/portal?year=" + strconv.Itoa(util.SEASON)

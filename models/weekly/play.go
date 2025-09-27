@@ -113,7 +113,7 @@ func (ps *PlayStat) UnmarshalJSON(data []byte) error {
 
 func FetchAndInsertPlays() error {
 	var plays Plays
-	query := fmt.Sprintf("plays?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query := fmt.Sprintf("plays?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	// Season + Week Req
 	conn.APICall(query, &plays)
 	if err := util.DB.CreateInBatches(plays, 100).Error; err != nil {
@@ -125,7 +125,7 @@ func FetchAndInsertPlays() error {
 
 func FetchAndInsertPlayStats(conference string) error {
 	var playStats PlayStats
-	query := fmt.Sprintf("plays/stats?year=%v&week=%v&conference=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), conference)
+	query := fmt.Sprintf("plays/stats?year=%v&week=%v&conference=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), conference, util.SEASON_TYPE)
 	// 2000 result limit // Is it paginated?
 	// looks like it needs GameID // Maybe conference?
 	conn.APICall(query, &playStats)
@@ -137,15 +137,27 @@ func FetchAndInsertPlayStats(conference string) error {
 			query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameID))
 			conn.APICall(query, &playStats)
 
-			if err := util.DB.CreateInBatches(playStats, 100).Error; err != nil {
+			if err := util.DB.CreateInBatches(playStats, 250).Error; err != nil {
 				return err
 			}
 		}
 
 	} else {
-		if err := util.DB.CreateInBatches(playStats, 100).Error; err != nil {
+		if err := util.DB.CreateInBatches(playStats, 250).Error; err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func FetchAndInsertPlayStatsGame(gameId int, team string) error {
+	var playStats PlayStats
+	query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v&team=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameId), team)
+	conn.APICall(query, &playStats)
+
+	if err := util.DB.CreateInBatches(playStats, 250).Error; err != nil {
+		return err
 	}
 
 	return nil

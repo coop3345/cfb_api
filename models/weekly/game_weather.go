@@ -34,7 +34,7 @@ type GameWeather struct {
 
 func FetchAndInsertGameWeather() error {
 	var gameWeather []GameWeather
-	query := fmt.Sprintf("games/weather?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query := fmt.Sprintf("games/weather?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &gameWeather)
 	if err := util.DB.CreateInBatches(gameWeather, 100).Error; err != nil {

@@ -69,7 +69,7 @@ func (gts *GameTeamStats) UnmarshalJSON(data []byte) error {
 
 func FetchAndInsertGameTeamStats() error {
 	var gts GameTeamStats
-	query := fmt.Sprintf("games/teams?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query := fmt.Sprintf("games/teams?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &gts)
 	if err := util.DB.CreateInBatches(gts, 100).Error; err != nil {

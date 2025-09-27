@@ -7,16 +7,31 @@ import (
 	"cfbapi/models/weekly"
 	"cfbapi/util"
 	"fmt"
+	"strconv"
 	"time"
 )
 
 func main() {
 	util.DB, _ = conn.InitDB()
+	models.Migrate_Model()
 
 	models.FetchAndInsertConferences()
 	for y := util.START_SEASON; y <= util.END_SEASON; y++ {
 		if util.GET_SEASON {
+			util.SEASON = y
 			get_season(y)
+		} else if util.GET_WEEKLY {
+			cal, _ := seasonal.FetchAndInsertCalendar()
+			for _, week := range cal {
+				if week.EndDate.Unix() < time.Now().Unix() {
+					util.WEEK, util.SEASON_TYPE = week.Week, week.SeasonType
+					continue
+				} else {
+					get_week(y, util.WEEK, util.SEASON_TYPE)
+					break
+				}
+			}
+			get_week(y, util.WEEK, util.SEASON_TYPE)
 		}
 		if util.GET_OFFSEASON {
 			models.FetchAndInsertDraftPicks(y)
@@ -45,15 +60,16 @@ func get_season(year int) {
 	}
 	for _, week := range cal {
 		util.WEEK = week.Week
+		util.SEASON_TYPE = week.SeasonType
 		if week.EndDate.Unix() > time.Now().Unix() {
 			fmt.Printf("Week (%v) not yet completed in Season - %v", week, year)
 			break
 		}
-		get_week(util.SEASON, util.WEEK)
+		get_week(util.SEASON, util.WEEK, util.SEASON_TYPE)
 	}
 }
 
-func get_week(year int, week int) {
+func get_week(year int, week int, season_type string) {
 	print(year, ":", week)
 	weekly.FetchAndInsertGames()
 	weekly.FetchAndInsertDrives()
@@ -63,8 +79,16 @@ func get_week(year int, week int) {
 	weekly.FetchAndInsertRankings()
 	weekly.FetchAndInsertRatings()
 	weekly.FetchAndInsertGameStatsAdv()
-
+	// todo iter conf once to remove this check
 	for _, con := range models.CONFERENCES {
-		weekly.FetchAndInsertPlayStats(con.Name)
+		if util.Contains(util.PSCD, con.Classification) {
+			weekly.FetchAndInsertPlayStats(con.Name)
+		}
 	}
+
+	fmt.Printf("Fetching lower div play stats vs D1 teams. Game Count = %v", strconv.Itoa(len(weekly.LOWERDIVGAMES)))
+	for gameId, team := range weekly.LOWERDIVGAMES {
+		weekly.FetchAndInsertPlayStatsGame(gameId, team)
+	}
+
 }

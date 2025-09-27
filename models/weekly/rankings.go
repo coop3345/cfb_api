@@ -75,7 +75,7 @@ func (r *Rankings) UnmarshalJSON(data []byte) error {
 
 func FetchAndInsertRankings() error {
 	var r Rankings
-	query := fmt.Sprintf("rankings?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query := fmt.Sprintf("rankings?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &r)
 	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {

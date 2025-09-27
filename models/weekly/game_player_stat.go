@@ -82,7 +82,7 @@ func (gps *GamePlayerStats) UnmarshalJSON(data []byte) error {
 
 func FetchAndInsertGamePlayerStats() error {
 	var gps GamePlayerStats
-	query := fmt.Sprintf("games/players?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query := fmt.Sprintf("games/players?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &gps)
 	if err := util.DB.CreateInBatches(gps, 100).Error; err != nil {

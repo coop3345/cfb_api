@@ -74,7 +74,7 @@ func (d *Drive) UnmarshalJSON(data []byte) error {
 
 func FetchAndInsertDrives() error {
 	var drives Drives
-	query := fmt.Sprintf("drives?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query := fmt.Sprintf("drives?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &drives)
 	if err := util.DB.CreateInBatches(drives, 100).Error; err != nil {

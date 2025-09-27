@@ -272,7 +272,7 @@ func (f *StatsGameAdvFlat) UnmarshalJSON(data []byte) error {
 
 func FetchAndInsertGameStatsAdv() error {
 	var sga StatsGameAdv
-	query := fmt.Sprintf("stats/game?year=%v&week=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK))
+	query := fmt.Sprintf("stats/game?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &sga)
 	if err := util.DB.CreateInBatches(sga, 100).Error; err != nil {

@@ -18,6 +18,10 @@ type Week struct {
 	EndDate    time.Time `json:"endDate"`
 }
 
+func (Week) TableName() string {
+	return "Calendar"
+}
+
 func (w *Week) UnmarshalJSON(data []byte) error {
 	type Alias Week // Prevent recursion
 	aux := &struct {

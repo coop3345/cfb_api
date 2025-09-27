@@ -14,8 +14,8 @@ type Roster struct {
 	Id             string         `json:"id" gorm:"primaryKey"`
 	FirstName      string         `json:"firstName"`
 	LastName       string         `json:"lastName"`
-	Team           string         `json:"team"`
-	Season         int            `json:"season"  gorm:"primaryKey"`
+	Team           string         `json:"team" gorm:"primaryKey"`
+	Season         int            `json:"season" gorm:"primaryKey"`
 	Height         int            `json:"height"`
 	Weight         int            `json:"weight"`
 	Jersey         int            `json:"jersey"`
