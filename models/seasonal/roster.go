@@ -11,7 +11,7 @@ import (
 
 type Rosters []Roster
 type Roster struct {
-	Id             string         `json:"id"`
+	PlayerId       string         `json:"id"`
 	FirstName      string         `json:"firstName"`
 	LastName       string         `json:"lastName"`
 	Team           string         `json:"team"`

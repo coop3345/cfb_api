@@ -17,7 +17,7 @@ type RecruitingTeam struct {
 
 type Recruits []Recruit
 type Recruit struct {
-	ID            string `json:"id" gorm:"primaryKey"`
+	RecruitID     string `json:"id"`
 	AthleteID     string `json:"athleteId"`
 	RecruitType   string `json:"recruitType"`
 	Year          int    `json:"year"`
@@ -34,37 +34,6 @@ type Recruit struct {
 	StateProvince string `json:"stateProvince"`
 	Country       string `json:"country"`
 }
-
-// recruiting/players?year=
-// recruiting/teams?year=
-
-// func InsertRecruits(db *sql.DB, recruits []Recruit) error {
-// 	query := `
-// 	INSERT INTO recruits (
-// 		id, athleteId, recruitType, year, ranking, name,
-// 		school, committedTo, position, height, weight,
-// 		stars, rating, city, stateProvince, country
-// 	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-
-// 	stmt, err := db.Prepare(query)
-// 	if err != nil {
-// 		return fmt.Errorf("prepare failed: %w", err)
-// 	}
-// 	defer stmt.Close()
-
-// 	for _, r := range recruits {
-// 		_, err := stmt.Exec(
-// 			r.ID, r.AthleteID, r.RecruitType, r.Year, r.Ranking, r.Name,
-// 			r.School, r.CommittedTo, r.Position, r.Height, r.Weight,
-// 			r.Stars, r.Rating, r.City, r.StateProvince, r.Country,
-// 		)
-// 		if err != nil {
-// 			return fmt.Errorf("insert failed for recruit %s: %w", r.ID, err)
-// 		}
-// 	}
-
-// 	return nil
-// }
 
 func FetchAndInsertRecruits(year int) error {
 	var r Recruits

@@ -10,7 +10,7 @@ import (
 
 type PlayerUsage struct {
 	Season        int    `json:"season"`
-	Id            string `json:"id"`
+	PlayerId      string `json:"id"`
 	Name          string `json:"name"`
 	Position      string `json:"position"`
 	Team          string `json:"team"`
@@ -52,7 +52,7 @@ func (p *PlayerUsage) UnmarshalJSON(data []byte) error {
 	}
 
 	p.Season = aux.Season
-	p.Id = aux.Id
+	p.PlayerId = aux.Id
 	p.Name = aux.Name
 	p.Position = aux.Position
 	p.Team = aux.Team
@@ -75,6 +75,12 @@ func FetchAndInsertPlayerUsage() error {
 	conn.APICall(query, &pu)
 
 	// todo: Add a delete statement based on year.
+	result := util.DB.Where("season = ?", util.SEASON).Delete(&PlayerUsage{})
+	if result.Error != nil {
+		util.LogDBError("Delete usages failed: %v", result.Error)
+	}
+
+	fmt.Printf("Deleted %d rows\n", result.RowsAffected)
 	util.LogDBError("FetchAndInsertPlayerUsage", util.DB.CreateInBatches(pu, 100).Error)
 
 	return nil
