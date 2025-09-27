@@ -18,9 +18,7 @@ type Conference struct {
 
 func FetchAndInsertConferences() error {
 	conn.APICall("conferences", &CONFERENCES)
-	if err := util.DB.CreateInBatches(CONFERENCES, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertConferences", util.DB.CreateInBatches(CONFERENCES, 100).Error)
 
 	return nil
 }

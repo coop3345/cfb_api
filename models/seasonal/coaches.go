@@ -84,9 +84,7 @@ func FetchAndInsertCoaches() error {
 	query := fmt.Sprintf("coaches?year=%v", strconv.Itoa(util.SEASON))
 	conn.APICall(query, &coaches)
 
-	if err := util.DB.CreateInBatches(coaches, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertCoaches", util.DB.CreateInBatches(coaches, 100).Error)
 
 	return nil
 }

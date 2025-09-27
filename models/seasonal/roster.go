@@ -11,11 +11,11 @@ import (
 
 type Rosters []Roster
 type Roster struct {
-	Id             string         `json:"id" gorm:"primaryKey"`
+	Id             string         `json:"id"`
 	FirstName      string         `json:"firstName"`
 	LastName       string         `json:"lastName"`
-	Team           string         `json:"team" gorm:"primaryKey"`
-	Season         int            `json:"season" gorm:"primaryKey"`
+	Team           string         `json:"team"`
+	Season         int            `json:"season"`
 	Height         int            `json:"height"`
 	Weight         int            `json:"weight"`
 	Jersey         int            `json:"jersey"`
@@ -37,9 +37,7 @@ func FetchAndInsertRosters() error {
 		rosters[i].Season = util.SEASON
 	}
 
-	if err := util.DB.CreateInBatches(rosters, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertRosters", util.DB.CreateInBatches(rosters, 100).Error)
 
 	return nil
 }

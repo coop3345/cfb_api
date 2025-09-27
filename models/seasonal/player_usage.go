@@ -26,7 +26,6 @@ type PlayerUsage struct {
 }
 
 func (p *PlayerUsage) UnmarshalJSON(data []byte) error {
-	// Define a shadow type with Usage nested as-is
 	type usageStruct struct {
 		PassingDowns  float64 `json:"passingDowns"`
 		StandardDowns float64 `json:"standardDowns"`
@@ -73,12 +72,10 @@ func (p *PlayerUsage) UnmarshalJSON(data []byte) error {
 func FetchAndInsertPlayerUsage() error {
 	var pu []PlayerUsage
 	query := fmt.Sprintf("player/usage?year=%v", strconv.Itoa(util.SEASON))
-	// Season + Week Req
 	conn.APICall(query, &pu)
 
-	if err := util.DB.CreateInBatches(pu, 100).Error; err != nil {
-		return err
-	}
+	// todo: Add a delete statement based on year.
+	util.LogDBError("FetchAndInsertPlayerUsage", util.DB.CreateInBatches(pu, 100).Error)
 
 	return nil
 }

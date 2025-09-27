@@ -18,9 +18,7 @@ func FetchAndInsertTalent() error {
 	var talent TeamTalent
 	query := fmt.Sprintf("talent?year=%v", strconv.Itoa(util.SEASON))
 	conn.APICall(query, &talent)
-	if err := util.DB.CreateInBatches(talent, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertTalent", util.DB.CreateInBatches(talent, 100).Error)
 
 	return nil
 }

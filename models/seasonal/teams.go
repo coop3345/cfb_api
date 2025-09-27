@@ -112,9 +112,7 @@ func (t *Team) UnmarshalJSON(data []byte) error {
 func FetchAndInsertTeams() error {
 	query := fmt.Sprintf("teams?year=%v", strconv.Itoa(util.SEASON))
 	conn.APICall(query, &TEAMS)
-	if err := util.DB.CreateInBatches(TEAMS, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertTeams", util.DB.CreateInBatches(TEAMS, 100).Error)
 
 	BuildConferenceTeams()
 

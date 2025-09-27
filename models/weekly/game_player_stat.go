@@ -8,7 +8,6 @@ import (
 	"strconv"
 )
 
-// todo flatten
 type GamePlayerStats []GamePlayerStat
 type GamePlayerStat struct {
 	GameID      int
@@ -24,8 +23,8 @@ type GamePlayerStat struct {
 }
 
 func (gps *GamePlayerStats) UnmarshalJSON(data []byte) error {
-	// Define the raw JSON structure
-	var raw struct {
+	// The top-level structure is a slice of games
+	var rawGames []struct {
 		Id    int `json:"id"`
 		Teams []struct {
 			Team       string `json:"team"`
@@ -46,36 +45,38 @@ func (gps *GamePlayerStats) UnmarshalJSON(data []byte) error {
 		} `json:"teams"`
 	}
 
-	// Unmarshal into raw form
-	if err := json.Unmarshal(data, &raw); err != nil {
+	// Unmarshal JSON into the slice
+	if err := json.Unmarshal(data, &rawGames); err != nil {
 		return fmt.Errorf("failed to unmarshal GamePlayerStat: %w", err)
 	}
 
 	var flat []GamePlayerStat
 
 	// Flatten the structure
-	for _, team := range raw.Teams {
-		for _, category := range team.Categories {
-			for _, statType := range category.Types {
-				for _, athlete := range statType.Athletes {
-					flat = append(flat, GamePlayerStat{
-						GameID:      raw.Id,
-						Team:        team.Team,
-						Conference:  team.Conference,
-						HomeAway:    team.HomeAway,
-						Points:      team.Points,
-						Category:    category.Name,
-						StatType:    statType.Name,
-						AthleteID:   athlete.Id,
-						AthleteName: athlete.Name,
-						Stat:        athlete.Stat,
-					})
+	for _, game := range rawGames {
+		for _, team := range game.Teams {
+			for _, category := range team.Categories {
+				for _, statType := range category.Types {
+					for _, athlete := range statType.Athletes {
+						flat = append(flat, GamePlayerStat{
+							GameID:      game.Id,
+							Team:        team.Team,
+							Conference:  team.Conference,
+							HomeAway:    team.HomeAway,
+							Points:      team.Points,
+							Category:    category.Name,
+							StatType:    statType.Name,
+							AthleteID:   athlete.Id,
+							AthleteName: athlete.Name,
+							Stat:        athlete.Stat,
+						})
+					}
 				}
 			}
 		}
 	}
 
-	// Assign flattened result
+	// Assign the flattened slice to the receiver
 	*gps = flat
 	return nil
 }
@@ -85,9 +86,7 @@ func FetchAndInsertGamePlayerStats() error {
 	query := fmt.Sprintf("games/players?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &gps)
-	if err := util.DB.CreateInBatches(gps, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertGamePlayerStats", util.DB.CreateInBatches(gps, 250).Error)
 
 	return nil
 }

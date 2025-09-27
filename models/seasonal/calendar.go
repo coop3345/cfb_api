@@ -56,9 +56,7 @@ func FetchAndInsertCalendar() (Calendar, error) {
 
 	conn.APICall(query, &cal)
 
-	if err := util.DB.CreateInBatches(cal, 100).Error; err != nil {
-		return nil, err
-	}
+	util.LogDBError("FetchAndInsertCalendar", util.DB.CreateInBatches(cal, 100).Error)
 
 	return cal, nil
 }

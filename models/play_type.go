@@ -16,9 +16,7 @@ func FetchAndInsertPlayTypes() error {
 	var pt PlayTypes
 
 	conn.APICall("plays/types", &pt)
-	if err := util.DB.CreateInBatches(pt, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertPlayTypes", util.DB.CreateInBatches(pt, 100).Error)
 
 	return nil
 }

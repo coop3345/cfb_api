@@ -9,8 +9,6 @@ import (
 )
 
 type Rankings []RankingFlat
-
-// todo: flatten
 type RankingRaw struct {
 	Season     int    `json:"season"`
 	SeasonType string `json:"seasonType"`
@@ -39,6 +37,10 @@ type RankingFlat struct {
 	Conference      string
 	FirstPlaceVotes int
 	Points          int
+}
+
+func (RankingFlat) TableName() string {
+	return "rankings"
 }
 
 func (r *Rankings) UnmarshalJSON(data []byte) error {
@@ -78,9 +80,7 @@ func FetchAndInsertRankings() error {
 	query := fmt.Sprintf("rankings?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &r)
-	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertRankings", util.DB.CreateInBatches(r, 250).Error)
 
 	return nil
 }

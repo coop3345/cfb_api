@@ -12,10 +12,12 @@ import (
 )
 
 func main() {
+	util.InitLogger()
 	util.DB, _ = conn.InitDB()
 	models.Migrate_Model()
 
 	models.FetchAndInsertConferences()
+
 	for y := util.START_SEASON; y <= util.END_SEASON; y++ {
 		if util.GET_SEASON {
 			util.SEASON = y
@@ -27,11 +29,11 @@ func main() {
 					util.WEEK, util.SEASON_TYPE = week.Week, week.SeasonType
 					continue
 				} else {
-					get_week(y, util.WEEK, util.SEASON_TYPE)
+					get_week(y, util.WEEK)
 					break
 				}
 			}
-			get_week(y, util.WEEK, util.SEASON_TYPE)
+			get_week(y, util.WEEK)
 		}
 		if util.GET_OFFSEASON {
 			models.FetchAndInsertDraftPicks(y)
@@ -65,11 +67,11 @@ func get_season(year int) {
 			fmt.Printf("Week (%v) not yet completed in Season - %v", week, year)
 			break
 		}
-		get_week(util.SEASON, util.WEEK, util.SEASON_TYPE)
+		get_week(util.SEASON, util.WEEK)
 	}
 }
 
-func get_week(year int, week int, season_type string) {
+func get_week(year int, week int) {
 	print(year, ":", week)
 	weekly.FetchAndInsertGames()
 	weekly.FetchAndInsertDrives()
@@ -79,7 +81,8 @@ func get_week(year int, week int, season_type string) {
 	weekly.FetchAndInsertRankings()
 	weekly.FetchAndInsertRatings()
 	weekly.FetchAndInsertGameStatsAdv()
-	// todo iter conf once to remove this check
+	weekly.FetchAndInsertPlays()
+
 	for _, con := range models.CONFERENCES {
 		if util.Contains(util.PSCD, con.Classification) {
 			weekly.FetchAndInsertPlayStats(con.Name)

@@ -116,18 +116,16 @@ func FetchAndInsertPlays() error {
 	query := fmt.Sprintf("plays?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	// Season + Week Req
 	conn.APICall(query, &plays)
-	if err := util.DB.CreateInBatches(plays, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertPlays", util.DB.CreateInBatches(plays, 100).Error)
 
 	return nil
 }
 
 func FetchAndInsertPlayStats(conference string) error {
 	var playStats PlayStats
-	query := fmt.Sprintf("plays/stats?year=%v&week=%v&conference=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), conference, util.SEASON_TYPE)
-	// 2000 result limit // Is it paginated?
-	// looks like it needs GameID // Maybe conference?
+	query := fmt.Sprintf("plays/stats?year=%v&week=%v&seasonType=%v&conference=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE, conference)
+	// 2000 result limit
+
 	conn.APICall(query, &playStats)
 
 	if len(playStats) == 2000 {
@@ -143,9 +141,7 @@ func FetchAndInsertPlayStats(conference string) error {
 		}
 
 	} else {
-		if err := util.DB.CreateInBatches(playStats, 250).Error; err != nil {
-			return err
-		}
+		util.LogDBError("FetchAndInsertPlayStats", util.DB.CreateInBatches(playStats, 250).Error)
 	}
 
 	return nil
@@ -156,9 +152,7 @@ func FetchAndInsertPlayStatsGame(gameId int, team string) error {
 	query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v&team=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameId), team)
 	conn.APICall(query, &playStats)
 
-	if err := util.DB.CreateInBatches(playStats, 250).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertPlayStats", util.DB.CreateInBatches(playStats, 250).Error)
 
 	return nil
 }

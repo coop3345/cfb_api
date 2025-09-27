@@ -23,8 +23,8 @@ type GameTeamStat struct {
 }
 
 func (gts *GameTeamStats) UnmarshalJSON(data []byte) error {
-	// Define raw structure matching JSON input
-	var raw struct {
+	// Define the raw input structure
+	var rawGames []struct {
 		Id    int `json:"id"`
 		Teams []struct {
 			TeamId     int    `json:"teamId"`
@@ -39,30 +39,30 @@ func (gts *GameTeamStats) UnmarshalJSON(data []byte) error {
 		} `json:"teams"`
 	}
 
-	// Unmarshal into raw structure
-	if err := json.Unmarshal(data, &raw); err != nil {
+	// Try to unmarshal into a slice of raw game objects
+	if err := json.Unmarshal(data, &rawGames); err != nil {
 		return fmt.Errorf("failed to unmarshal GameTeamStat: %w", err)
 	}
 
 	var flat []GameTeamStat
 
-	// Flatten loop
-	for _, team := range raw.Teams {
-		for _, stat := range team.Stats {
-			flat = append(flat, GameTeamStat{
-				GameID:     raw.Id,
-				TeamID:     team.TeamId,
-				Team:       team.Team,
-				Conference: team.Conference,
-				HomeAway:   team.HomeAway,
-				Points:     team.Points,
-				Category:   stat.Category,
-				Stat:       stat.Stat,
-			})
+	for _, game := range rawGames {
+		for _, team := range game.Teams {
+			for _, stat := range team.Stats {
+				flat = append(flat, GameTeamStat{
+					GameID:     game.Id,
+					TeamID:     team.TeamId,
+					Team:       team.Team,
+					Conference: team.Conference,
+					HomeAway:   team.HomeAway,
+					Points:     team.Points,
+					Category:   stat.Category,
+					Stat:       stat.Stat,
+				})
+			}
 		}
 	}
 
-	// Assign flattened results
 	*gts = flat
 	return nil
 }
@@ -72,9 +72,6 @@ func FetchAndInsertGameTeamStats() error {
 	query := fmt.Sprintf("games/teams?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &gts)
-	if err := util.DB.CreateInBatches(gts, 100).Error; err != nil {
-		return err
-	}
-
+	util.LogDBError("FetchAndInsertGameTeamStats", util.DB.CreateInBatches(gts, 250).Error)
 	return nil
 }

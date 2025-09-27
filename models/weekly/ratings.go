@@ -99,6 +99,10 @@ type SRS struct {
 	Ranking    int     `json:"ranking"`
 }
 
+func (SRS) TableName() string {
+	return "srs_ratings"
+}
+
 type FPIRatings []FPIRating
 type FPI struct {
 	Year        int     `json:"year"`
@@ -223,9 +227,7 @@ func FetchAndInsertSP() error {
 		r[i].Week = util.WEEK
 	}
 
-	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertSP", util.DB.CreateInBatches(r, 250).Error)
 
 	return nil
 }
@@ -239,9 +241,7 @@ func FetchAndInsertSRS() error {
 		r[i].Week = util.WEEK
 	}
 
-	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertSRS", util.DB.CreateInBatches(r, 250).Error)
 
 	return nil
 }
@@ -255,9 +255,7 @@ func FetchAndInsertFPI() error {
 		r[i].Week = util.WEEK
 	}
 
-	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
-		return err
-	}
+	util.LogDBError("FetchAndInsertFPI", util.DB.CreateInBatches(r, 250).Error)
 
 	return nil
 }
