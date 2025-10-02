@@ -1,9 +1,15 @@
 package util
 
 import (
+	"encoding/json"
 	"regexp"
 	"strings"
 )
+
+func MarshalToJSONString(v interface{}) string {
+	b, _ := json.Marshal(v)
+	return string(b)
+}
 
 func Trim_endpoint(endpoint string) string {
 	if !GET_WEEKLY && GET_FULL_SEASON {
@@ -27,4 +33,13 @@ func Trim_endpoint(endpoint string) string {
 	}
 
 	return endpoint
+}
+
+func Contains(slice []string, value string) bool {
+	for _, v := range slice {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }

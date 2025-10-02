@@ -41,7 +41,7 @@ func FetchAndInsertGameWeather() error {
 	query := fmt.Sprintf("games/weather?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &gameWeather)
-	util.LogDBError("FetchAndInsertGameWeather", util.DB.CreateInBatches(gameWeather, 1).Error)
+	util.LogDBError("FetchAndInsertGameWeather", conn.BatchInsert(util.DB, gameWeather, 1))
 
 	return nil
 }

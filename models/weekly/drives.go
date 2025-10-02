@@ -77,7 +77,7 @@ func FetchAndInsertDrives() error {
 	query := fmt.Sprintf("drives?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &drives)
-	util.LogDBError("FetchAndInsertDrives", util.DB.CreateInBatches(drives, 250).Error)
+	util.LogDBError("FetchAndInsertDrives", conn.BatchInsert(util.DB, drives, 1))
 
 	return nil
 }

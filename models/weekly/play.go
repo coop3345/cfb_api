@@ -2,7 +2,6 @@ package weekly
 
 import (
 	"cfbapi/conn"
-	"cfbapi/models/seasonal"
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
@@ -116,43 +115,44 @@ func FetchAndInsertPlays() error {
 	query := fmt.Sprintf("plays?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	// Season + Week Req
 	conn.APICall(query, &plays)
-	util.LogDBError("FetchAndInsertPlays", util.DB.CreateInBatches(plays, 100).Error)
+	util.LogDBError("FetchAndInsertPlays", conn.BatchInsert(util.DB, plays, 100))
 
 	return nil
 }
 
-func FetchAndInsertPlayStats(conference string) error {
-	var playStats PlayStats
-	query := fmt.Sprintf("plays/stats?year=%v&week=%v&seasonType=%v&conference=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE, conference)
-	// 2000 result limit
+// func FetchAndInsertPlayStats(conference string) error {
+// 	var playStats PlayStats
+// 	query := fmt.Sprintf("plays/stats?year=%v&week=%v&seasonType=%v&conference=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE, conference)
+// 	// 2000 result limit
+// 	// todo: update to game by game call with go routines to speed it up
 
+// 	conn.APICall(query, &playStats)
+
+// 	if len(playStats) == 2000 {
+// 		print("WARNING! Play Stats cap reached. Season: %v, Week: %v, Conference: %v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), conference)
+// 		for _, team := range seasonal.CONFERENCE_TEAMS[conference] {
+// 			gameID := GAMES[team.School]
+// 			query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameID))
+// 			conn.APICall(query, &playStats)
+
+// 			if err := util.DB.CreateInBatches(playStats, 250).Error; err != nil {
+// 				return err
+// 			}
+// 		}
+
+// 	} else {
+// 		util.LogDBError("FetchAndInsertPlayStats", util.DB.CreateInBatches(playStats, 250).Error)
+// 	}
+
+// 	return nil
+// }
+
+func FetchAndInsertPlayStatsGame(gameId int) error {
+	var playStats PlayStats
+	query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameId))
 	conn.APICall(query, &playStats)
 
-	if len(playStats) == 2000 {
-		print("WARNING! Play Stats cap reached. Season: %v, Week: %v, Conference: %v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), conference)
-		for _, team := range seasonal.CONFERENCE_TEAMS[conference] {
-			gameID := GAMES[team.School]
-			query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameID))
-			conn.APICall(query, &playStats)
-
-			if err := util.DB.CreateInBatches(playStats, 250).Error; err != nil {
-				return err
-			}
-		}
-
-	} else {
-		util.LogDBError("FetchAndInsertPlayStats", util.DB.CreateInBatches(playStats, 250).Error)
-	}
-
-	return nil
-}
-
-func FetchAndInsertPlayStatsGame(gameId int, team string) error {
-	var playStats PlayStats
-	query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v&team=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameId), team)
-	conn.APICall(query, &playStats)
-
-	util.LogDBError("FetchAndInsertPlayStats", util.DB.CreateInBatches(playStats, 250).Error)
+	util.LogDBError("FetchAndInsertPlayStats", conn.BatchInsert(util.DB, playStats, 250))
 
 	return nil
 }

@@ -5,28 +5,26 @@ import (
 	"cfbapi/util"
 	"fmt"
 	"strconv"
-
-	"gorm.io/datatypes"
 )
 
 type Rosters []Roster
 type Roster struct {
-	PlayerId       string         `json:"id"`
-	FirstName      string         `json:"firstName"`
-	LastName       string         `json:"lastName"`
-	Team           string         `json:"team"`
-	Season         int            `json:"season"`
-	Height         int            `json:"height"`
-	Weight         int            `json:"weight"`
-	Jersey         int            `json:"jersey"`
-	Position       string         `json:"position"`
-	HomeCity       string         `json:"homeCity"`
-	HomeState      string         `json:"homeState"`
-	HomeCountry    string         `json:"homeCountry"`
-	HomeLatitude   float64        `json:"homeLatitude"`
-	HomeLongitude  float64        `json:"homeLongitude"`
-	HomeCountyFIPS string         `json:"homeCountyFIPS"`
-	RecruitIds     datatypes.JSON `json:"recruitIds"`
+	PlayerId       string  `json:"id"`
+	FirstName      string  `json:"firstName"`
+	LastName       string  `json:"lastName"`
+	Team           string  `json:"team"`
+	Season         int     `json:"season"`
+	Height         int     `json:"height"`
+	Weight         int     `json:"weight"`
+	Jersey         int     `json:"jersey"`
+	Position       string  `json:"position"`
+	HomeCity       string  `json:"homeCity"`
+	HomeState      string  `json:"homeState"`
+	HomeCountry    string  `json:"homeCountry"`
+	HomeLatitude   float64 `json:"homeLatitude"`
+	HomeLongitude  float64 `json:"homeLongitude"`
+	HomeCountyFIPS string  `json:"homeCountyFIPS"`
+	RecruitIds     string  `json:"recruitIds" gorm.type:"NVARCHAR(MAX)"`
 }
 
 func FetchAndInsertRosters() error {
@@ -37,7 +35,7 @@ func FetchAndInsertRosters() error {
 		rosters[i].Season = util.SEASON
 	}
 
-	util.LogDBError("FetchAndInsertRosters", util.DB.CreateInBatches(rosters, 100).Error)
+	util.LogDBError("FetchAndInsertRosters", conn.BatchInsert(util.DB, rosters, 100))
 
 	return nil
 }

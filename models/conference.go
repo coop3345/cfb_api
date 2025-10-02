@@ -7,6 +7,8 @@ import (
 
 var CONFERENCES Conferences
 
+// var COLLECT_CONFERENCES []string
+
 type Conferences []Conference
 type Conference struct {
 	Id             int    `json:"id"`
@@ -18,7 +20,13 @@ type Conference struct {
 
 func FetchAndInsertConferences() error {
 	conn.APICall("conferences", &CONFERENCES)
-	util.LogDBError("FetchAndInsertConferences", util.DB.CreateInBatches(CONFERENCES, 1).Error)
+	util.LogDBError("FetchAndInsertConferences", conn.BatchInsert(util.DB, CONFERENCES, 1))
+
+	// for _, con := range CONFERENCES {
+	// 	if util.Contains(util.PSCD, con.Classification) {
+	// 		COLLECT_CONFERENCES = append(COLLECT_CONFERENCES, con.Name)
+	// 	}
+	// }
 
 	return nil
 }

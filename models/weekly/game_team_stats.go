@@ -72,6 +72,6 @@ func FetchAndInsertGameTeamStats() error {
 	query := fmt.Sprintf("games/teams?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &gts)
-	util.LogDBError("FetchAndInsertGameTeamStats", util.DB.CreateInBatches(gts, 250).Error)
+	util.LogDBError("FetchAndInsertGameTeamStats", conn.BatchInsert(util.DB, gts, 100))
 	return nil
 }

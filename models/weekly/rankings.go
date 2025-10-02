@@ -80,7 +80,7 @@ func FetchAndInsertRankings() error {
 	query := fmt.Sprintf("rankings?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &r)
-	util.LogDBError("FetchAndInsertRankings", util.DB.CreateInBatches(r, 250).Error)
+	util.LogDBError("FetchAndInsertRankings", conn.BatchInsert(util.DB, r, 100))
 
 	return nil
 }

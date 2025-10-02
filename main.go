@@ -18,18 +18,21 @@ func main() {
 
 	models.FetchAndInsertConferences()
 
+	// /*
 	for y := util.START_SEASON; y <= util.END_SEASON; y++ {
+		util.SEASON = y
 		if util.GET_SEASON {
-			util.SEASON = y
 			get_season(y)
 		} else if util.GET_WEEKLY {
 			cal, _ := seasonal.FetchAndInsertCalendar()
 			for _, week := range cal {
-				if week.EndDate.Unix() < time.Now().Unix() {
+				weekEnd := week.EndDate.Unix()
+				now := time.Now().Unix()
+
+				if weekEnd < now {
 					util.WEEK, util.SEASON_TYPE = week.Week, week.SeasonType
 					continue
 				} else {
-					get_week(y, util.WEEK)
 					break
 				}
 			}
@@ -46,6 +49,10 @@ func main() {
 		models.FetchAndInsertPlayTypes()
 		models.FetchAndInsertVenues()
 	}
+	// */
+	// for y := util.START_SEASON; y <= util.END_SEASON; y++ {
+	// 	backfill_play_stats(y)
+	// }
 }
 
 func get_season(year int) {
@@ -83,15 +90,37 @@ func get_week(year int, week int) {
 	weekly.FetchAndInsertGameStatsAdv()
 	weekly.FetchAndInsertPlays()
 
-	for _, con := range models.CONFERENCES {
-		if util.Contains(util.PSCD, con.Classification) {
-			weekly.FetchAndInsertPlayStats(con.Name)
+	// for _, con := range models.COLLECT_CONFERENCES {
+	// 	weekly.FetchAndInsertPlayStats(con)
+	// }
+
+	for _, game := range weekly.GAMES {
+		if util.Contains(util.PSCD, game.AwayClassification) || util.Contains(util.PSCD, game.HomeClassification) {
+			weekly.FetchAndInsertPlayStatsGame(game.Id)
 		}
 	}
+}
 
-	fmt.Printf("Fetching lower div play stats vs D1 teams. Game Count = %v", strconv.Itoa(len(weekly.LOWERDIVGAMES)))
-	for gameId, team := range weekly.LOWERDIVGAMES {
-		weekly.FetchAndInsertPlayStatsGame(gameId, team)
+func backfill_play_stats(year int) {
+	util.SEASON = year
+	cal, _ := seasonal.FetchAndInsertCalendar()
+	for _, week := range cal {
+		util.WEEK = week.Week
+		util.SEASON_TYPE = week.SeasonType
+		if week.EndDate.Unix() > time.Now().Unix() {
+			fmt.Printf("Week (%v) not yet completed in Season - %v", week, year)
+			break
+		} else if week.Week == 5 && year == 2025 {
+			break
+		}
+
+		query := fmt.Sprintf("games?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
+		conn.APICall(query, &weekly.GAMES)
+
+		for _, game := range weekly.GAMES {
+			if util.Contains(util.PSCD, game.AwayClassification) || util.Contains(util.PSCD, game.HomeClassification) {
+				weekly.FetchAndInsertPlayStatsGame(game.Id)
+			}
+		}
 	}
-
 }

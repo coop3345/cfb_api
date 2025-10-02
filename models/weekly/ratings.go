@@ -227,7 +227,7 @@ func FetchAndInsertSP() error {
 		r[i].Week = util.WEEK
 	}
 
-	util.LogDBError("FetchAndInsertSP", util.DB.CreateInBatches(r, 250).Error)
+	util.LogDBError("FetchAndInsertSP", conn.BatchInsert(util.DB, r, 100))
 
 	return nil
 }
@@ -241,7 +241,7 @@ func FetchAndInsertSRS() error {
 		r[i].Week = util.WEEK
 	}
 
-	util.LogDBError("FetchAndInsertSRS", util.DB.CreateInBatches(r, 250).Error)
+	util.LogDBError("FetchAndInsertSRS", conn.BatchInsert(util.DB, r, 100))
 
 	return nil
 }
@@ -255,7 +255,7 @@ func FetchAndInsertFPI() error {
 		r[i].Week = util.WEEK
 	}
 
-	util.LogDBError("FetchAndInsertFPI", util.DB.CreateInBatches(r, 250).Error)
+	util.LogDBError("FetchAndInsertFPI", conn.BatchInsert(util.DB, r, 100))
 
 	return nil
 }

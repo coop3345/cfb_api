@@ -39,7 +39,7 @@ func FetchAndInsertRecruits(year int) error {
 	var r Recruits
 	query := fmt.Sprintf("recruiting/players?year=%v", strconv.Itoa(year))
 	conn.APICall(query, &r)
-	if err := util.DB.CreateInBatches(r, 100).Error; err != nil {
+	if err := conn.BatchInsert(util.DB, r, 100); err != nil {
 		return err
 	}
 
@@ -50,7 +50,7 @@ func FetchAndInsertRecruitingTeams(year int) error {
 	var t RecruitingTeams
 	query := fmt.Sprintf("recruiting/teams?year=%v", strconv.Itoa(year))
 	conn.APICall(query, &t)
-	if err := util.DB.CreateInBatches(t, 100).Error; err != nil {
+	if err := conn.BatchInsert(util.DB, t, 100); err != nil {
 		return err
 	}
 

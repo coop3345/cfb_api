@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-
-	"gorm.io/datatypes"
 )
 
 var TEAMS Teams
@@ -15,18 +13,18 @@ var CONFERENCE_TEAMS map[string]Teams
 
 type Teams []Team
 type Team struct {
-	ID             int            `json:"id" gorm:"primaryKey"`
-	School         string         `json:"school"`
-	Mascot         string         `json:"mascot"`
-	Abbreviation   string         `json:"abbreviation"`
-	AlternateNames datatypes.JSON `json:"alternateNames"`
-	Conference     string         `json:"conference"`
-	Division       string         `json:"division"`
-	Classification string         `json:"classification"`
-	Color          string         `json:"color"`
-	AlternateColor string         `json:"alternateColor"`
-	Logos          datatypes.JSON `json:"logos"`
-	Twitter        string         `json:"twitter"`
+	ID             int    `json:"id" gorm:"primaryKey"`
+	School         string `json:"school"`
+	Mascot         string `json:"mascot"`
+	Abbreviation   string `json:"abbreviation"`
+	AlternateNames string `json:"alternateNames" gorm.type:"NVARCHAR(MAX)"`
+	Conference     string `json:"conference"`
+	Division       string `json:"division"`
+	Classification string `json:"classification"`
+	Color          string `json:"color"`
+	AlternateColor string `json:"alternateColor"`
+	Logos          string `json:"logos" gorm.type:"NVARCHAR(MAX)"`
+	Twitter        string `json:"twitter"`
 
 	// Flattened Location fields
 	LocationID       int     `json:"-"`
@@ -44,52 +42,58 @@ type Team struct {
 	Grass            bool    `json:"-"`
 	Dome             bool    `json:"-"`
 }
-type Location struct {
-	Id               int     `json:"id"`
-	Name             string  `json:"name"`
-	City             string  `json:"city"`
-	State            string  `json:"state"`
-	Zip              string  `json:"zip"`
-	CountryCode      string  `json:"countryCode"`
-	Timezone         string  `json:"timezone"`
-	Latitude         float64 `json:"latitude"`
-	Longitude        float64 `json:"longitude"`
-	Elevation        string  `json:"elevation"`
-	Capacity         int     `json:"capacity"`
-	ConstructionYear int     `json:"constructionYear"`
-	Grass            bool    `json:"grass"`
-	Dome             bool    `json:"dome"`
+
+type rawTeam struct {
+	ID             int      `json:"id" gorm:"primaryKey"`
+	School         string   `json:"school"`
+	Mascot         string   `json:"mascot"`
+	Abbreviation   string   `json:"abbreviation"`
+	AlternateNames []string `json:"alternateNames"`
+	Conference     string   `json:"conference"`
+	Division       string   `json:"division"`
+	Classification string   `json:"classification"`
+	Color          string   `json:"color"`
+	AlternateColor string   `json:"alternateColor"`
+	Logos          []string `json:"logos"`
+	Twitter        string   `json:"twitter"`
+	Location       struct {
+		ID               int     `json:"id"`
+		Name             string  `json:"name"`
+		City             string  `json:"city"`
+		State            string  `json:"state"`
+		Zip              string  `json:"zip"`
+		CountryCode      string  `json:"countryCode"`
+		Timezone         string  `json:"timezone"`
+		Latitude         float64 `json:"latitude"`
+		Longitude        float64 `json:"longitude"`
+		Elevation        string  `json:"elevation"`
+		Capacity         int     `json:"capacity"`
+		ConstructionYear int     `json:"constructionYear"`
+		Grass            bool    `json:"grass"`
+		Dome             bool    `json:"dome"`
+	} `json:"location"`
 }
 
 func (t *Team) UnmarshalJSON(data []byte) error {
 	// Define alias to match original JSON structure
-	type Alias Team
-	aux := &struct {
-		Location struct {
-			ID               int     `json:"id"`
-			Name             string  `json:"name"`
-			City             string  `json:"city"`
-			State            string  `json:"state"`
-			Zip              string  `json:"zip"`
-			CountryCode      string  `json:"countryCode"`
-			Timezone         string  `json:"timezone"`
-			Latitude         float64 `json:"latitude"`
-			Longitude        float64 `json:"longitude"`
-			Elevation        string  `json:"elevation"`
-			Capacity         int     `json:"capacity"`
-			ConstructionYear int     `json:"constructionYear"`
-			Grass            bool    `json:"grass"`
-			Dome             bool    `json:"dome"`
-		} `json:"location"`
-		*Alias
-	}{
-		Alias: (*Alias)(t), // embed all other fields
-	}
+	aux := &rawTeam{}
 
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return fmt.Errorf("failed to unmarshal Team: %w", err)
 	}
 
+	t.ID = aux.ID
+	t.School = aux.School
+	t.Mascot = aux.Mascot
+	t.Abbreviation = aux.Abbreviation
+	t.AlternateNames = util.MarshalToJSONString(aux.AlternateNames)
+	t.Conference = aux.Conference
+	t.Division = aux.Division
+	t.Classification = aux.Classification
+	t.Color = aux.Color
+	t.AlternateColor = aux.AlternateColor
+	t.Logos = util.MarshalToJSONString(aux.Logos)
+	t.Twitter = aux.Twitter
 	// Flatten location into main struct
 	t.LocationID = aux.Location.ID
 	t.LocationName = aux.Location.Name

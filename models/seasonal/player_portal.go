@@ -28,7 +28,7 @@ func FetchAndInsertPortal() error {
 	var portal PortalSeason
 	query := "player/portal?year=" + strconv.Itoa(util.SEASON)
 	conn.APICall(query, &portal)
-	util.LogDBError("FetchAndInsertPortal", util.DB.CreateInBatches(portal, 100).Error)
+	util.LogDBError("FetchAndInsertPortal", conn.BatchInsert(util.DB, portal, 100))
 
 	return nil
 }
