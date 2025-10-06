@@ -26,7 +26,7 @@ type Venue struct {
 func FetchAndInsertVenues() error {
 	var v Venues
 	conn.APICall("venues", &v)
-	util.LogDBError("FetchAndInsertVenues", conn.BatchInsert(util.DB, v, 1))
+	util.LogDBError("FetchAndInsertVenues", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, v, 1))
 
 	return nil
 }

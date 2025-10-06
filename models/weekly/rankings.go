@@ -8,6 +8,9 @@ import (
 	"strconv"
 )
 
+var RANK_SEASON_TYPE string
+var RANK_WEEK int
+
 type Rankings []RankingFlat
 type RankingRaw struct {
 	Season     int    `json:"season"`
@@ -77,10 +80,10 @@ func (r *Rankings) UnmarshalJSON(data []byte) error {
 
 func FetchAndInsertRankings() error {
 	var r Rankings
-	query := fmt.Sprintf("rankings?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
+	query := fmt.Sprintf("rankings?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), RANK_WEEK, RANK_SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &r)
-	util.LogDBError("FetchAndInsertRankings", conn.BatchInsert(util.DB, r, 100))
+	util.LogDBError("FetchAndInsertRankings", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, r, 100))
 
 	return nil
 }

@@ -20,7 +20,7 @@ type Conference struct {
 
 func FetchAndInsertConferences() error {
 	conn.APICall("conferences", &CONFERENCES)
-	util.LogDBError("FetchAndInsertConferences", conn.BatchInsert(util.DB, CONFERENCES, 1))
+	util.LogDBError("FetchAndInsertConferences", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, CONFERENCES, 1))
 
 	// for _, con := range CONFERENCES {
 	// 	if util.Contains(util.PSCD, con.Classification) {

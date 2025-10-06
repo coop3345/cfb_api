@@ -115,7 +115,7 @@ func FetchAndInsertPlays() error {
 	query := fmt.Sprintf("plays?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	// Season + Week Req
 	conn.APICall(query, &plays)
-	util.LogDBError("FetchAndInsertPlays", conn.BatchInsert(util.DB, plays, 100))
+	util.LogDBError("FetchAndInsertPlays", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, plays, 100))
 
 	return nil
 }
@@ -135,13 +135,13 @@ func FetchAndInsertPlays() error {
 // 			query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameID))
 // 			conn.APICall(query, &playStats)
 
-// 			if err := util.DB.CreateInBatches(playStats, 250).Error; err != nil {
+// 			if err := util.CONFIG.CONNECTIONS.DB.CreateInBatches(playStats, 250).Error; err != nil {
 // 				return err
 // 			}
 // 		}
 
 // 	} else {
-// 		util.LogDBError("FetchAndInsertPlayStats", util.DB.CreateInBatches(playStats, 250).Error)
+// 		util.LogDBError("FetchAndInsertPlayStats", util.CONFIG.CONNECTIONS.DB.CreateInBatches(playStats, 250).Error)
 // 	}
 
 // 	return nil
@@ -152,7 +152,7 @@ func FetchAndInsertPlayStatsGame(gameId int) error {
 	query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameId))
 	conn.APICall(query, &playStats)
 
-	util.LogDBError("FetchAndInsertPlayStats", conn.BatchInsert(util.DB, playStats, 250))
+	util.LogDBError("FetchAndInsertPlayStats", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, playStats, 250))
 
 	return nil
 }

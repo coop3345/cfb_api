@@ -74,13 +74,13 @@ func FetchAndInsertPlayerUsage() error {
 	query := fmt.Sprintf("player/usage?year=%v", strconv.Itoa(util.SEASON))
 	conn.APICall(query, &pu)
 
-	result := util.DB.Where("season = ?", util.SEASON).Delete(&PlayerUsage{})
+	result := util.CONFIG.CONNECTIONS.DB.Where("season = ?", util.SEASON).Delete(&PlayerUsage{})
 	if result.Error != nil {
 		util.LogDBError("Delete usages failed: %v", result.Error)
 	}
 
 	fmt.Printf("Deleted %d rows\n", result.RowsAffected)
-	util.LogDBError("FetchAndInsertPlayerUsage", conn.BatchInsert(util.DB, pu, 100))
+	util.LogDBError("FetchAndInsertPlayerUsage", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, pu, 100))
 
 	return nil
 }

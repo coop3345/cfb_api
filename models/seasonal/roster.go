@@ -35,7 +35,7 @@ func FetchAndInsertRosters() error {
 		rosters[i].Season = util.SEASON
 	}
 
-	util.LogDBError("FetchAndInsertRosters", conn.BatchInsert(util.DB, rosters, 100))
+	util.LogDBError("FetchAndInsertRosters", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, rosters, 100))
 
 	return nil
 }
