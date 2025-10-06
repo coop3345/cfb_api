@@ -14,7 +14,7 @@ type PlayStatType struct {
 func FetchAndInsertPlayStatTypes() error {
 	var pst PlayStatTypes
 	conn.APICall("plays/stats/types", &pst)
-	util.LogDBError("FetchAndInsertPlayStatTypes", conn.BatchInsert(util.DB, pst, 1))
+	util.LogDBError("FetchAndInsertPlayStatTypes", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, pst, 1))
 
 	return nil
 }

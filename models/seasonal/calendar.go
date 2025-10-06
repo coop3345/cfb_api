@@ -56,8 +56,8 @@ func FetchAndInsertCalendar() (Calendar, error) {
 
 	conn.APICall(query, &cal)
 
-	if util.INSERT_CAL {
-		util.LogDBError("FetchAndInsertCalendar", conn.BatchInsert(util.DB, cal, 100))
+	if util.CONFIG.RUN_PARAMS.INSERT_CAL {
+		util.LogDBError("FetchAndInsertCalendar", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, cal, 100))
 	}
 
 	return cal, nil

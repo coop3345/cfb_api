@@ -7,7 +7,7 @@ import (
 )
 
 func Migrate_Model() {
-	util.DB.AutoMigrate(
+	util.CONFIG.CONNECTIONS.DB.AutoMigrate(
 		&Recruit{},
 		&Conference{},
 		&DraftPick{},

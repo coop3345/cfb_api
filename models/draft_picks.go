@@ -33,7 +33,7 @@ func FetchAndInsertDraftPicks(year int) error {
 	var dp DraftPicks
 	query := fmt.Sprintf("draft/picks?year=%v", strconv.Itoa(year))
 	conn.APICall(query, &dp)
-	if err := conn.BatchInsert(util.DB, dp, 100); err != nil {
+	if err := conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, dp, 100); err != nil {
 		return err
 	}
 

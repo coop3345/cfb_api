@@ -10,8 +10,8 @@ import (
 )
 
 func APICall[T any](endpoint string, result *T) error {
-	token := util.API_Token
-	url := util.API_URL_BASE + endpoint
+	token := util.CONFIG.CONNECTIONS.API_TOKEN
+	url := util.CONFIG.CONNECTIONS.API_URL_BASE + endpoint
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

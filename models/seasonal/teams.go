@@ -116,7 +116,7 @@ func (t *Team) UnmarshalJSON(data []byte) error {
 func FetchAndInsertTeams() error {
 	query := fmt.Sprintf("teams?year=%v", strconv.Itoa(util.SEASON))
 	conn.APICall(query, &TEAMS)
-	util.LogDBError("FetchAndInsertTeams", util.DB.CreateInBatches(TEAMS, 1).Error)
+	util.LogDBError("FetchAndInsertTeams", util.CONFIG.CONNECTIONS.DB.CreateInBatches(TEAMS, 1).Error)
 
 	BuildConferenceTeams()
 

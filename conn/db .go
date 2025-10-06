@@ -12,7 +12,7 @@ import (
 )
 
 func InitDB() (*gorm.DB, error) {
-	dsn := util.DSN_STRING
+	dsn := util.CONFIG.CONNECTIONS.DSN_STRING
 	var err error
 	DB, err := gorm.Open(sqlserver.Open(dsn), &gorm.Config{})
 	if err != nil {

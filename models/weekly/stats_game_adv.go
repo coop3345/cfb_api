@@ -275,7 +275,7 @@ func FetchAndInsertGameStatsAdv() error {
 	query := fmt.Sprintf("stats/game/advanced?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
 	conn.APICall(query, &sga)
-	util.LogDBError("FetchAndInsertGameStatsAdv", conn.BatchInsert(util.DB, sga, 100))
+	util.LogDBError("FetchAndInsertGameStatsAdv", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, sga, 100))
 
 	return nil
 }

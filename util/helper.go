@@ -12,7 +12,7 @@ func MarshalToJSONString(v interface{}) string {
 }
 
 func Trim_endpoint(endpoint string) string {
-	if !GET_WEEKLY && GET_FULL_SEASON {
+	if !CONFIG.RUN_PARAMS.GET_WEEKLY && CONFIG.RUN_PARAMS.GET_FULL_SEASON {
 		re := regexp.MustCompile(`([?&])week=\d+(&)?`)
 
 		// Replace with either '?' or '&' depending on what's left
