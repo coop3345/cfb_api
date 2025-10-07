@@ -23,7 +23,7 @@ type Roster struct {
 	HomeCountry    string  `json:"homeCountry"`
 	HomeLatitude   float64 `json:"homeLatitude"`
 	HomeLongitude  float64 `json:"homeLongitude"`
-	HomeCountyFIPS string  `json:"homeCountyFIPS"`
+	HomeCountyFips string  `json:"homeCountyFIPS"`
 	RecruitIds     string  `json:"recruitIds" gorm.type:"NVARCHAR(MAX)"`
 }
 

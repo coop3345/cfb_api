@@ -1,10 +1,12 @@
 package util
 
 import (
+	"log"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
@@ -41,6 +43,11 @@ type Run_Params struct {
 }
 
 func Setup() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	CONFIG = Config{
 		CONNECTIONS: Connections{
 			API_TOKEN:    getEnv("API_TOKEN"),
