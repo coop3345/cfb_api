@@ -120,33 +120,6 @@ func FetchAndInsertPlays() error {
 	return nil
 }
 
-// func FetchAndInsertPlayStats(conference string) error {
-// 	var playStats PlayStats
-// 	query := fmt.Sprintf("plays/stats?year=%v&week=%v&seasonType=%v&conference=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE, conference)
-// 	// 2000 result limit
-// 	// todo: update to game by game call with go routines to speed it up
-
-// 	conn.APICall(query, &playStats)
-
-// 	if len(playStats) == 2000 {
-// 		print("WARNING! Play Stats cap reached. Season: %v, Week: %v, Conference: %v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), conference)
-// 		for _, team := range seasonal.CONFERENCE_TEAMS[conference] {
-// 			gameID := GAMES[team.School]
-// 			query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameID))
-// 			conn.APICall(query, &playStats)
-
-// 			if err := util.CONFIG.CONNECTIONS.DB.CreateInBatches(playStats, 250).Error; err != nil {
-// 				return err
-// 			}
-// 		}
-
-// 	} else {
-// 		util.LogDBError("FetchAndInsertPlayStats", util.CONFIG.CONNECTIONS.DB.CreateInBatches(playStats, 250).Error)
-// 	}
-
-// 	return nil
-// }
-
 func FetchAndInsertPlayStatsGame(gameId int) error {
 	var playStats PlayStats
 	query := fmt.Sprintf("plays/stats?year=%v&week=%v&gameId=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), strconv.Itoa(gameId))

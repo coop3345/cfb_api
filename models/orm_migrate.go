@@ -33,5 +33,6 @@ func Migrate_Model() {
 		&weekly.SPRating{},
 		&weekly.SRS{},
 		&weekly.FPIRating{},
-		&weekly.StatsGameAdvFlat{})
+		&weekly.StatsGameAdvFlat{},
+		&weekly.GameLines{})
 }
