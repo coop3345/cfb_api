@@ -16,8 +16,6 @@ func main() {
 	util.CONFIG.CONNECTIONS.DB, _ = conn.InitDB()
 	models.Migrate_Model()
 
-	models.FetchAndInsertConferences()
-
 	for y := util.CONFIG.RUN_PARAMS.START_SEASON; y <= util.CONFIG.RUN_PARAMS.END_SEASON; y++ {
 		util.SEASON = y
 		// get entire season backfill
@@ -94,27 +92,3 @@ func get_week(year int, week int) {
 		}
 	}
 }
-
-// func backfill_play_stats(year int) {
-// 	util.SEASON = year
-// 	cal, _ := seasonal.FetchAndInsertCalendar()
-// 	for _, week := range cal {
-// 		util.WEEK = week.Week
-// 		util.SEASON_TYPE = week.SeasonType
-// 		if week.EndDate.Unix() > time.Now().Unix() {
-// 			fmt.Printf("Week (%v) not yet completed in Season - %v", week, year)
-// 			break
-// 		} else if week.Week == 5 && year == 2025 {
-// 			break
-// 		}
-
-// 		query := fmt.Sprintf("games?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
-// 		conn.APICall(query, &weekly.GAMES)
-
-// 		for _, game := range weekly.GAMES {
-// 			if util.Contains(util.PSCD, game.AwayClassification) || util.Contains(util.PSCD, game.HomeClassification) {
-// 				weekly.FetchAndInsertPlayStatsGame(game.Id)
-// 			}
-// 		}
-// 	}
-// }
