@@ -5,6 +5,7 @@ import (
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -81,6 +82,7 @@ func FetchAndInsertPlayerUsage() error {
 
 	fmt.Printf("Deleted %d rows\n", result.RowsAffected)
 	util.LogDBError("FetchAndInsertPlayerUsage", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, pu, 100))
+	log.Println("Inserted", len(pu), "player usage records.")
 
 	return nil
 }

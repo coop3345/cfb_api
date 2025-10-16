@@ -3,6 +3,7 @@ package models
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
+	"log"
 )
 
 type PlayTypes []PlayType
@@ -17,6 +18,7 @@ func FetchAndInsertPlayTypes() error {
 
 	conn.APICall("plays/types", &pt)
 	util.LogDBError("FetchAndInsertPlayTypes", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, pt, 1))
+	log.Println("Inserted", len(pt), "play type records.")
 
 	return nil
 }

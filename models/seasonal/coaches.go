@@ -5,6 +5,7 @@ import (
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -85,6 +86,7 @@ func FetchAndInsertCoaches() error {
 	conn.APICall(query, &coaches)
 
 	util.LogDBError("FetchAndInsertCoaches", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, coaches, 1))
+	log.Println("Inserted", len(coaches), "coaches.")
 
 	return nil
 }

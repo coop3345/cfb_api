@@ -5,6 +5,7 @@ import (
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -76,8 +77,10 @@ func FetchAndInsertDrives() error {
 	var drives Drives
 	query := fmt.Sprintf("drives?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
+
 	conn.APICall(query, &drives)
 	util.LogDBError("FetchAndInsertDrives", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, drives, 1))
+	log.Println("Inserted", len(drives), "drives")
 
 	return nil
 }

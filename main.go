@@ -6,7 +6,7 @@ import (
 	"cfbapi/models/seasonal"
 	"cfbapi/models/weekly"
 	"cfbapi/util"
-	"fmt"
+	"log"
 	"time"
 )
 
@@ -67,7 +67,7 @@ func get_season(year int) {
 		util.SEASON_TYPE, weekly.RANK_SEASON_TYPE = week.SeasonType, week.SeasonType
 
 		if week.EndDate.Unix() > time.Now().Unix() {
-			fmt.Printf("Week (%v) not yet completed in Season - %v", week, year)
+			log.Printf("Week (%v) not yet completed in Season - %v", week, year)
 			break
 		}
 		get_week(util.SEASON, util.WEEK)
@@ -75,7 +75,7 @@ func get_season(year int) {
 }
 
 func get_week(year int, week int) {
-	print(year, ":", week)
+	log.Println("Starting Year: ", year, " - Week: ", week)
 	weekly.FetchAndInsertGames()
 	weekly.FetchAndInsertDrives()
 	weekly.FetchAndInsertGamePlayerStats()

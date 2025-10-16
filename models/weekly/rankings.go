@@ -5,6 +5,7 @@ import (
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -82,8 +83,10 @@ func FetchAndInsertRankings() error {
 	var r Rankings
 	query := fmt.Sprintf("rankings?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), RANK_WEEK, RANK_SEASON_TYPE)
 	query = util.Trim_endpoint(query)
+
 	conn.APICall(query, &r)
 	util.LogDBError("FetchAndInsertRankings", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, r, 100))
+	log.Println("Inserted", len(r), "rankings.")
 
 	return nil
 }

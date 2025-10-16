@@ -4,6 +4,7 @@ import (
 	"cfbapi/conn"
 	"cfbapi/util"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -17,8 +18,10 @@ type Talent struct {
 func FetchAndInsertTalent() error {
 	var talent TeamTalent
 	query := fmt.Sprintf("talent?year=%v", strconv.Itoa(util.SEASON))
+
 	conn.APICall(query, &talent)
 	util.LogDBError("FetchAndInsertTalent", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, talent, 1))
+	log.Println("Inserted", len(talent), "talent records.")
 
 	return nil
 }

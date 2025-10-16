@@ -4,6 +4,7 @@ import (
 	"cfbapi/conn"
 	"cfbapi/util"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -36,6 +37,7 @@ func FetchAndInsertDraftPicks(year int) error {
 	if err := conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, dp, 100); err != nil {
 		return err
 	}
+	log.Println("Inserted", len(dp), "team records.")
 
 	return nil
 }

@@ -3,6 +3,7 @@ package models
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
+	"log"
 )
 
 type Venues []Venue
@@ -27,6 +28,7 @@ func FetchAndInsertVenues() error {
 	var v Venues
 	conn.APICall("venues", &v)
 	util.LogDBError("FetchAndInsertVenues", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, v, 1))
+	log.Println("Inserted", len(v), "venue records.")
 
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -71,7 +72,10 @@ func FetchAndInsertGameTeamStats() error {
 	var gts GameTeamStats
 	query := fmt.Sprintf("games/teams?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
+
 	conn.APICall(query, &gts)
 	util.LogDBError("FetchAndInsertGameTeamStats", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, gts, 100))
+	log.Println("Inserted", len(gts), "game team stats")
+
 	return nil
 }

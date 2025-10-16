@@ -4,6 +4,7 @@ import (
 	"cfbapi/conn"
 	"cfbapi/util"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -40,8 +41,10 @@ func FetchAndInsertGameWeather() error {
 	var gameWeather []GameWeather
 	query := fmt.Sprintf("games/weather?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
+
 	conn.APICall(query, &gameWeather)
 	util.LogDBError("FetchAndInsertGameWeather", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, gameWeather, 1))
+	log.Println("Inserted", len(gameWeather), "game weather records.")
 
 	return nil
 }

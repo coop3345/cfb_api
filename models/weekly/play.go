@@ -5,6 +5,7 @@ import (
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -113,10 +114,10 @@ func (ps *PlayStat) UnmarshalJSON(data []byte) error {
 func FetchAndInsertPlays() error {
 	var plays Plays
 	query := fmt.Sprintf("plays?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
-	// Season + Week Req
 	conn.APICall(query, &plays)
 	util.LogDBError("FetchAndInsertPlays", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, plays, 100))
 
+	log.Println("Inserted", len(plays), "plays")
 	return nil
 }
 
