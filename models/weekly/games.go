@@ -4,6 +4,7 @@ import (
 	"cfbapi/conn"
 	"cfbapi/util"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -49,8 +50,10 @@ type Game struct {
 func FetchAndInsertGames() error {
 	query := fmt.Sprintf("games?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
+
 	conn.APICall(query, &GAMES)
 	util.LogDBError("FetchAndInsertGames", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, GAMES, 1))
+	log.Println("Inserted", len(GAMES), "games.")
 
 	return nil
 }

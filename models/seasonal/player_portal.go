@@ -3,6 +3,7 @@ package seasonal
 import (
 	"cfbapi/conn"
 	"cfbapi/util"
+	"log"
 	"strconv"
 )
 
@@ -29,6 +30,7 @@ func FetchAndInsertPortal() error {
 	query := "player/portal?year=" + strconv.Itoa(util.SEASON)
 	conn.APICall(query, &portal)
 	util.LogDBError("FetchAndInsertPortal", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, portal, 100))
+	log.Println("Inserted", len(portal), "portal records.")
 
 	return nil
 }

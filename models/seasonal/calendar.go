@@ -5,6 +5,7 @@ import (
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 )
@@ -58,6 +59,7 @@ func FetchAndInsertCalendar() (Calendar, error) {
 
 	if util.CONFIG.RUN_PARAMS.INSERT_CAL {
 		util.LogDBError("FetchAndInsertCalendar", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, cal, 100))
+		log.Println("Inserted", len(cal), "calendar records.")
 	}
 
 	return cal, nil

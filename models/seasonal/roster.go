@@ -4,6 +4,7 @@ import (
 	"cfbapi/conn"
 	"cfbapi/util"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -36,6 +37,7 @@ func FetchAndInsertRosters() error {
 	}
 
 	util.LogDBError("FetchAndInsertRosters", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, rosters, 100))
+	log.Println("Inserted", len(rosters), "roster records.")
 
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -228,6 +229,7 @@ func FetchAndInsertSP() error {
 	}
 
 	util.LogDBError("FetchAndInsertSP", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, r, 100))
+	log.Println("Inserted", len(r), "SP ratings.")
 
 	return nil
 }
@@ -242,6 +244,7 @@ func FetchAndInsertSRS() error {
 	}
 
 	util.LogDBError("FetchAndInsertSRS", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, r, 100))
+	log.Println("Inserted", len(r), "SRS ratings.")
 
 	return nil
 }
@@ -256,6 +259,7 @@ func FetchAndInsertFPI() error {
 	}
 
 	util.LogDBError("FetchAndInsertFPI", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, r, 100))
+	log.Println("Inserted", len(r), "FPI ratings.")
 
 	return nil
 }

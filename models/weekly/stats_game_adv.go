@@ -5,6 +5,7 @@ import (
 	"cfbapi/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -274,8 +275,10 @@ func FetchAndInsertGameStatsAdv() error {
 	var sga StatsGameAdv
 	query := fmt.Sprintf("stats/game/advanced?year=%v&week=%v&seasonType=%v", strconv.Itoa(util.SEASON), strconv.Itoa(util.WEEK), util.SEASON_TYPE)
 	query = util.Trim_endpoint(query)
+
 	conn.APICall(query, &sga)
 	util.LogDBError("FetchAndInsertGameStatsAdv", conn.BatchInsert(util.CONFIG.CONNECTIONS.DB, sga, 100))
+	log.Println("Inserted", len(sga), "game advanced stats.")
 
 	return nil
 }
