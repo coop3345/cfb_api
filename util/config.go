@@ -42,10 +42,11 @@ type Run_Params struct {
 	INSERT_CAL      bool
 }
 
-func Setup() {
+func Setup() error {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("No .env file found, using environment variables")
+		return err
 	}
 
 	CONFIG = Config{
@@ -70,6 +71,8 @@ func Setup() {
 	SEASON = getEnvAsInt("SEASON")
 	WEEK = getEnvAsInt("WEEK")
 	SEASON_TYPE = getEnv("SEASON_TYPE")
+
+	return nil
 }
 
 func getEnv(key string) string {
