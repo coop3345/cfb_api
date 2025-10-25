@@ -15,6 +15,7 @@ var CONFERENCE_TEAMS map[string]Teams
 type Teams []Team
 type Team struct {
 	ID             int    `json:"id" gorm:"primaryKey"`
+	Season         int    `gorm:"primaryKey"`
 	School         string `json:"school"`
 	Mascot         string `json:"mascot"`
 	Abbreviation   string `json:"abbreviation"`
@@ -84,6 +85,7 @@ func (t *Team) UnmarshalJSON(data []byte) error {
 	}
 
 	t.ID = aux.ID
+	t.Season = util.SEASON
 	t.School = aux.School
 	t.Mascot = aux.Mascot
 	t.Abbreviation = aux.Abbreviation
